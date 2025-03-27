@@ -1,3 +1,4 @@
+<!-- MCP服务器调试页面模板 -->
 <template>
   <div class="debug-page">
     <h2>MCP Server 调试工具</h2>
@@ -59,15 +60,34 @@
 
           <!-- 工具列表和调试区 -->
           <div class="tool-debug" v-if="currentServer">
+            <div class="connection-status">
+              <el-button 
+                type="primary" 
+                @click="connectServer"
+                :loading="isConnecting"
+                :disabled="connectionStatus === 'connected'"
+              >
+                {{ connectionStatus === 'connected' ? '已连接' : isConnecting ? '连接中...' : '连接服务器' }}
+              </el-button>
+              <el-tag :type="connectionStatus === 'connected' ? 'success' : 'danger'">
+                {{ connectionStatus === 'connected' ? '已连接' : connectionStatus === 'connecting' ? '连接中' : '未连接' }}
+              </el-tag>
+            </div>
             <el-tabs v-model="activeToolTab">
-              <el-tab-pane label="工具列表" name="tools">
-                <el-table :data="currentServer.tools" @row-click="selectTool">
+              <el-tab-pane label="工具列表" name="tools" :disabled="connectionStatus !== 'connected'">
+                <div v-if="connectionStatus !== 'connected'" class="tab-disabled-hint">
+                  <el-empty description="请先连接服务器以查看工具列表" />
+                </div>
+                <el-table v-else :data="currentServer.tools" @row-click="selectTool">
                   <el-table-column prop="name" label="工具名称" />
                   <el-table-column prop="description" label="描述" />
                 </el-table>
               </el-tab-pane>
               
-              <el-tab-pane label="调试" name="debug" :disabled="!selectedTool">
+              <el-tab-pane label="调试" name="debug" :disabled="connectionStatus !== 'connected' || !selectedTool">
+                <div v-if="connectionStatus !== 'connected'" class="tab-disabled-hint">
+                  <el-empty description="请先连接服务器以使用调试功能" />
+                </div>
                 <div v-if="selectedTool" class="tool-debug-area">
                   <h3>调试工具: {{ selectedTool.name }}</h3>
                   <el-form label-width="100px">
@@ -110,9 +130,10 @@
 </template>
 
 <script setup>
+// 导入Vue响应式API
 import { ref } from 'vue'
 
-// 模拟数据
+// 模拟服务器数据
 const servers = ref([
   {
     id: '1',
@@ -152,33 +173,64 @@ const servers = ref([
   }
 ])
 
-const currentServer = ref(null)
-const selectedTool = ref(null)
-const activeToolTab = ref('tools')
-const debugResult = ref(null)
+// 调试页面状态管理
+const currentServer = ref(null) // 当前选中的服务器
+const selectedTool = ref(null) // 当前选中的工具
+const activeToolTab = ref('tools') // 当前激活的标签页
+const debugResult = ref(null) // 调试结果
+const connectionStatus = ref('disconnected') // 连接状态: disconnected/connecting/connected
+const isConnecting = ref(false) // 是否正在连接中
 
+// 处理服务器选择变化
 const handleServerChange = (server) => {
-  currentServer.value = server
-  selectedTool.value = null
-  debugResult.value = null
+  currentServer.value = server // 更新当前服务器
+  selectedTool.value = null // 重置选中工具
+  debugResult.value = null // 清空调试结果
+  connectionStatus.value = 'disconnected' // 重置连接状态
 }
 
+// 选择工具方法
 const selectTool = (tool) => {
-  selectedTool.value = tool
-  activeToolTab.value = 'debug'
+  selectedTool.value = tool // 设置当前工具
+  activeToolTab.value = 'debug' // 切换到调试标签页
+}
+
+// 执行工具方法
+// 连接服务器方法
+const connectServer = async () => {
+  if (!currentServer.value) return
+  
+  try {
+    isConnecting.value = true
+    connectionStatus.value = 'connecting'
+    
+    // 模拟连接过程
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    connectionStatus.value = 'connected'
+  } catch (error) {
+    connectionStatus.value = 'disconnected'
+    console.error('连接失败:', error)
+  } finally {
+    isConnecting.value = false
+  }
 }
 
 const executeTool = () => {
+  if (connectionStatus.value !== 'connected') {
+    return
+  }
+  
   // 模拟执行工具
   debugResult.value = JSON.stringify({
-    tool: selectedTool.value.name,
+    tool: selectedTool.value.name, // 工具名称
     params: selectedTool.value.params.reduce((acc, param) => {
-      acc[param.name] = param.value
+      acc[param.name] = param.value // 收集参数
       return acc
     }, {}),
-    result: '执行成功',
-    timestamp: new Date().toISOString()
-  }, null, 2)
+    result: '执行成功', // 执行结果
+    timestamp: new Date().toISOString() // 时间戳
+  }, null, 2) // 格式化JSON输出
 }
 
 </script>
@@ -186,6 +238,7 @@ const executeTool = () => {
 <style scoped>
 .debug-page {
   padding: 20px;
+  background-color: #f2f2f7;
 }
 
 .debug-container {
@@ -202,9 +255,22 @@ const executeTool = () => {
   flex: 1;
 }
 
+.el-card {
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.el-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
 .card-header {
-  font-weight: bold;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 18px;
+  color: #1c1c1e;
 }
 
 .server-overview {
@@ -218,35 +284,57 @@ const executeTool = () => {
 .empty-tip {
   padding: 20px;
   text-align: center;
-  color: var(--el-text-color-secondary);
+  color: #8e8e93;
 }
 
 .result-card {
   margin-top: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .result-card pre {
   white-space: pre-wrap;
   word-wrap: break-word;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1c1c1e;
+}
+
+/* iOS风格按钮 */
+.el-button {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.el-button--primary {
+  background-color: #007aff;
+  border-color: #007aff;
+}
+
+.el-button--primary:hover {
+  background-color: #0062cc;
+  border-color: #0062cc;
 }
 
 /* 增强列表交互效果 */
 :deep(.el-table__body tr:hover > td) {
-  background-color: #f5f7fa;
+  background-color: rgba(0, 122, 255, 0.08);
   cursor: pointer;
 }
 
 :deep(.el-table__body tr.current-row > td) {
-  background-color: #ecf5ff;
+  background-color: rgba(0, 122, 255, 0.12);
 }
 
 :deep(.el-table__body tr.current-row:hover > td) {
-  background-color: #d9ecff;
+  background-color: rgba(0, 122, 255, 0.16);
 }
 
 .server-list .el-table {
-  --el-table-border-color: var(--el-border-color-lighter);
+  --el-table-border-color: rgba(60, 60, 67, 0.12);
   --el-table-border: 1px solid var(--el-table-border-color);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .server-list .el-table td {
@@ -255,5 +343,41 @@ const executeTool = () => {
 
 .tool-debug .el-table td {
   padding: 12px 0;
+}
+
+/* iOS风格标签 */
+.el-tag {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.el-tag--success {
+  background-color: rgba(52, 199, 89, 0.12);
+  color: #34c759;
+}
+
+.el-tag--danger {
+  background-color: rgba(255, 59, 48, 0.12);
+  color: #ff3b30;
+}
+
+.el-tag--warning {
+  background-color: rgba(255, 149, 0, 0.12);
+  color: #ff9500;
+}
+
+/* 连接状态动画 */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.connection-status .el-tag {
+  margin-left: 10px;
+}
+
+.connection-status .el-tag--warning {
+  animation: pulse 1.5s infinite;
 }
 </style>

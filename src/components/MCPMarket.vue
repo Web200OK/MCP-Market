@@ -1,3 +1,4 @@
+<!-- MCP市场页面模板 -->
 <template>
   <div class="market-container">
 
@@ -67,6 +68,7 @@
             :key="service.id"
             class="service-card"
             @click="goToDetail(service.id)"
+            style="border: 1px solid rgba(0, 122, 255, 0.2); box-shadow: 0 2px 12px 0 rgba(0, 122, 255, 0.1)"
           >
             <div v-if="service.type === 'official'" class="card-badge">
               官方
@@ -110,9 +112,10 @@ declare global {
 }
 
 import { ref, onMounted, onUnmounted } from 'vue'
-const emit = defineEmits(['search'])
+// 定义组件事件和属性
+const emit = defineEmits(['search']) // 搜索事件
 const props = defineProps<{
-  onSearch?: (query: string) => void
+  onSearch?: (query: string) => void // 搜索回调函数
 }>()
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
@@ -136,16 +139,16 @@ interface ServiceItem {
 const router = useRouter()
 
 // 搜索和过滤
-const searchQuery = ref('')
+const searchQuery = ref('') // 搜索关键词
 
 // 分类数据
-const categories = ref<string[]>([])
-const activeCategory = ref('')
+const categories = ref<string[]>([]) // 分类列表
+const activeCategory = ref('') // 当前选中的分类
 
 // 服务数据
-const services = ref<ServiceItem[]>([])
-const loading = ref(false)
-const error = ref<Error | null>(null)
+const services = ref<ServiceItem[]>([]) // MCP服务列表
+const loading = ref(false) // 加载状态
+const error = ref<Error | null>(null) // 错误信息
 
 const goToDetail = (id: string) => {
   router.push({ name: 'mcp-details', params: { id } })

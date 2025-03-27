@@ -1,3 +1,4 @@
+<!-- 市场头部组件模板 -->
 <template>
   <!-- 固定顶部导航栏 -->
   <header class="market-header fixed-header">
@@ -94,15 +95,18 @@ import { ref, computed } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
-const emit = defineEmits(['search'])
+// 定义组件事件
+const emit = defineEmits(['search']) // 搜索事件
 
-const route = useRoute()
-const store = useStore()
-const isHomePage = computed(() => route.path === '/')
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+// 路由和状态管理
+const route = useRoute() // 路由实例
+const store = useStore() // Vuex存储
+const isHomePage = computed(() => route.path === '/') // 是否在首页
+const isAuthenticated = computed(() => store.state.isAuthenticated) // 是否已认证
 
-const showLoginDialog = ref(false)
-const loginForm = ref({
+// 登录相关状态
+const showLoginDialog = ref(false) // 是否显示登录对话框
+const loginForm = ref({ // 登录表单数据
   username: '',
   password: ''
 })

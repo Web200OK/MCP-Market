@@ -204,6 +204,7 @@ const resetForm = () => {
 <style scoped>
 .submit-page {
   padding: 20px;
+  background-color: #f2f2f7;
 }
 
 .submit-content {
@@ -215,17 +216,44 @@ const resetForm = () => {
 .submit-card {
   flex: 1;
   max-width: 600px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.submit-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .submit-guide {
   flex: 1;
   padding: 20px;
-  background: #f5f5f5;
-  border-radius: 4px;
+  background: rgba(245, 245, 245, 0.8);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
 }
 
 .card-header {
-  font-weight: bold;
+  font-weight: 600;
   font-size: 18px;
+  color: #1c1c1e;
+}
+
+.el-button {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.el-button--primary {
+  background-color: #007aff;
+  border-color: #007aff;
+}
+
+.el-button--primary:hover {
+  background-color: #0062cc;
+  border-color: #0062cc;
 }
 </style>

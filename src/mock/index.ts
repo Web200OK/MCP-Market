@@ -83,5 +83,16 @@ export default [
         data: categories
       }
     }
+  },
+  {
+    url: '/api/mcp/submit',
+    method: 'post',
+    response: () => {
+      return {
+        code: 200,
+        data: null,
+        message: '提交成功'
+      }
+    }
   }
 ] as MockMethod[]

@@ -1,5 +1,7 @@
 <template>
+  <!-- MCP服务器详情页面模板 -->
   <div class="detail-container">
+    <!-- 页面头部，带返回按钮 -->
     <el-page-header @back="goBack" content="MCP Server详情" />
     
     <el-card class="detail-card">
@@ -77,19 +79,19 @@ export default {
   name: 'MCPDetail',
   data() {
     return {
-      activeTab: 'overview',
-      connectionStatus: 'disconnected', // disconnected/connecting/connected
-      isConnecting: false,
-      server: {
-        id: this.$route.params.id,
-        name: '示例MCP服务器',
-        address: '127.0.0.1:8080',
-        status: 'online',
-        version: '1.0.0',
-        lastActive: '2025-03-27 10:30:45',
-        description: '这是一个示例MCP服务器，提供各种工具和资源',
-        content: '<p>服务器包含以下资源：</p><ul><li>API文档</li><li>示例代码</li><li>调试工具</li></ul>',
-        tools: [
+      activeTab: 'overview', // 当前激活的标签页
+      connectionStatus: 'disconnected', // 连接状态: disconnected/connecting/connected
+      isConnecting: false, // 是否正在连接中
+      server: { // 服务器数据对象
+        id: this.$route.params.id, // 从路由参数获取服务器ID
+        name: '示例MCP服务器', // 服务器名称
+        address: '127.0.0.1:8080', // 服务器地址
+        status: 'online', // 服务器状态: online/offline
+        version: '1.0.0', // 服务器版本
+        lastActive: '2025-03-27 10:30:45', // 最后活跃时间
+        description: '这是一个示例MCP服务器，提供各种工具和资源', // 服务器描述
+        content: '<p>服务器包含以下资源：</p><ul><li>API文档</li><li>示例代码</li><li>调试工具</li></ul>', // HTML格式的服务器内容
+        tools: [ // 服务器提供的工具列表
           { name: 'get_weather', description: '获取天气信息' },
           { name: 'search_files', description: '搜索文件内容' },
           { name: 'execute_command', description: '执行系统命令' }
@@ -98,12 +100,17 @@ export default {
     }
   },
   methods: {
+    // 返回上一页
     goBack() {
       this.$router.push('/')
     },
+    
+    // 使用工具方法
     useTool(tool) {
       this.$message.success(`准备使用工具: ${tool.name}`)
     },
+    
+    // 连接服务器方法
     connectToServer() {
       this.isConnecting = true
       this.connectionStatus = 'connecting'

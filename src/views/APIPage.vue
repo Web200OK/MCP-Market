@@ -1,3 +1,4 @@
+<!-- API文档页面模板 -->
 <template>
   <div class="api-page">
     <h2>应用程序API</h2>
@@ -36,6 +37,7 @@
 </template>
 
 <script setup>
+// 这里可以添加API调用逻辑
 // 这里可以添加API调用逻辑
 </script>
 
