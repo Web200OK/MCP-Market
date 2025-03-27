@@ -5,10 +5,11 @@ const instance = axios.create({
   timeout: 5000
 })
 
-export const getMCPList = (category?: string) => {
+export const getMCPList = (category?: string, search?: string) => {
   return instance.get('/api/mcp/list', {
     params: {
-      category
+      category,
+      search
     }
   })
 }

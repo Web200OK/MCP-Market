@@ -1,7 +1,7 @@
 import type { MockMethod } from 'vite-plugin-mock'
 import Mock from 'mockjs'
 
-interface MCPItem {
+export interface MCPItem {
   id: number
   name: string
   description: string

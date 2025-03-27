@@ -23,8 +23,49 @@
       </nav>
 
       <div class="header-right">
-        <el-button type="primary" size="small">登录</el-button>
+        <el-button 
+          v-if="!isAuthenticated"
+          type="primary" 
+          size="small"
+          @click="showLoginDialog = true"
+        >
+          登录
+        </el-button>
+        <el-dropdown v-else>
+          <span class="user-avatar">
+            <el-avatar :size="32" :src="userAvatar" />
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item>个人中心</el-dropdown-item>
+              <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
+
+      <el-dialog
+        v-model="showLoginDialog"
+        title="登录"
+        width="400px"
+      >
+        <el-form 
+          :model="loginForm"
+          label-width="80px"
+          label-position="right"
+        >
+          <el-form-item label="用户名">
+            <el-input v-model="loginForm.username" style="width: 240px" />
+          </el-form-item>
+          <el-form-item label="密码">
+            <el-input v-model="loginForm.password" type="password" style="width: 240px" />
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="showLoginDialog = false">取消</el-button>
+          <el-button type="primary" @click="handleLogin">登录</el-button>
+        </template>
+      </el-dialog>
     </div>
 
   <div class="search-section" v-if="isHomePage">
@@ -52,9 +93,31 @@
 import { ref, computed } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
+import { useStore } from 'vuex'
+const emit = defineEmits(['search'])
 
 const route = useRoute()
+const store = useStore()
 const isHomePage = computed(() => route.path === '/')
+const isAuthenticated = computed(() => store.state.isAuthenticated)
+
+const showLoginDialog = ref(false)
+const loginForm = ref({
+  username: '',
+  password: ''
+})
+
+const userAvatar = ref('https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png')
+
+const handleLogin = () => {
+  // TODO: 实际登录逻辑
+  store.dispatch('login')
+  showLoginDialog.value = false
+}
+
+const handleLogout = () => {
+  store.dispatch('logout')
+}
 
 // 导航数据
 const mainNavItems = ref([

@@ -1,6 +1,27 @@
 <template>
   <div class="market-container">
 
+    <!-- 搜索区域 -->
+    <div class="search-section">
+      <h3 class="search-title">搜索MCP服务</h3>
+      <div class="search-container">
+        <el-input
+          v-model="searchQuery"
+          placeholder="请输入搜索关键词"
+          class="search-input"
+          clearable
+          @keyup.enter="handleSearch"
+        >
+          <template #append>
+            <el-button 
+              :icon="Search" 
+              @click="handleSearch"
+            />
+          </template>
+        </el-input>
+      </div>
+    </div>
+
     <!-- 主体内容 -->
     <div class="market-main with-header">
       <!-- 分类边栏 -->
@@ -27,6 +48,7 @@
             v-for="service in services" 
             :key="service.id"
             class="service-card"
+            @click="goToDetail(service.id)"
           >
             <div v-if="service.type === 'official'" class="card-badge">
               官方
@@ -50,8 +72,9 @@
               <el-button 
                 size="small" 
                 :type="service.isDownload ? 'success' : 'primary'"
+                @click.stop="handleInstall(service)"
               >
-                {{ service.isDownload ? '已安装' : '安装' }}
+                {{ service.isDownload ? '已安装' : '点击安装' }}
               </el-button>
             </div>
           </div>
@@ -61,51 +84,62 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+<script setup lang="ts">
+declare global {
+  interface DocumentEventMap {
+    'mcp-search': CustomEvent<string>
+  }
+}
+
+import { ref, onMounted, onUnmounted } from 'vue'
+const emit = defineEmits(['search'])
+const props = defineProps<{
+  onSearch?: (query: string) => void
+}>()
+import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
 import { getMCPList } from '@/api/mcp'
+import { MCPItem } from '@/mock/index'
 
-const route = useRoute()
+interface ServiceItem {
+  id: string
+  name: string
+  type: string
+  tags: string[]
+  description: string
+  stats: {
+    downloads: number
+    rating: string
+  }
+  isDownload: boolean
+}
+
 const router = useRouter()
-
-// 导航数据
-const mainNavItems = ref([
-  { name: '首页', route: '/' },
-  { name: '调试', route: '/debug' }, 
-  { name: '提交', route: '/submit' },
-  { name: '应用程序API', route: '/api' }
-])
 
 // 搜索和过滤
 const searchQuery = ref('')
 
 // 分类数据
-const categories = ref([
-  '本地MCP Server',
-  '远程MCP Server',
-  '浏览器自动化',
-  '数据库管理',
-  '文件系统',
-  '开发者工具',
-  '搜索与知识管理'
-])
+const categories = ref<string[]>([])
 const activeCategory = ref('')
 
 // 服务数据
-const services = ref([])
+const services = ref<ServiceItem[]>([])
 const loading = ref(false)
-const error = ref(null)
+const error = ref<Error | null>(null)
 
-const fetchServices = async (category = '', search = '') => {
+const goToDetail = (id: string) => {
+  router.push({ name: 'mcp-details', params: { id } })
+}
+
+const fetchServices = async (category = '', search = '', signal?: AbortSignal) => {
   try {
     loading.value = true
-    const { data: response } = await getMCPList({ 
-      category,
-      search 
-    })
-    services.value = response.data.map(item => ({
+    const { data: response } = await getMCPList(category, search)
+    const data = response.data as MCPItem[]
+    
+    services.value = data.map(item => ({
       id: item.id.toString(),
       name: item.name,
       type: 'official',
@@ -118,118 +152,91 @@ const fetchServices = async (category = '', search = '') => {
       isDownload: false
     }))
   } catch (err) {
-    error.value = err
+    error.value = err as Error
     console.error('Failed to fetch MCP list:', err)
   } finally {
     loading.value = false
   }
 }
 
-onMounted(() => {
-  fetchServices()
+onMounted(async () => {
+  await fetchServices()
+  // 只在初始加载时提取分类
+  const { data: response } = await getMCPList()
+  const data = response.data as MCPItem[]
+  categories.value = [...new Set(data.map(item => item.category))]
+  
+  // 监听来自App.vue的搜索事件
+  function handleExternalSearch(e: Event) {
+    const event = e as CustomEvent<string>
+    searchQuery.value = event.detail
+    handleSearch()
+  }
+  
+  document.addEventListener('mcp-search', handleExternalSearch as EventListener)
+  
+  // 组件卸载时移除监听器
+  onUnmounted(() => {
+    document.removeEventListener('mcp-search', handleExternalSearch as EventListener)
+  })
 })
 
-async function filterByCategory(category) {
+async function filterByCategory(category: string) {
   activeCategory.value = activeCategory.value === category ? '' : category
   await fetchServices(activeCategory.value, searchQuery.value)
 }
 
+function handleInstall(service: ServiceItem) {
+  service.isDownload = true
+  ElMessage.success(`${service.name} 安装成功`)
+}
+
+const isSearching = ref(false)
+const abortController = ref<AbortController>()
+
 async function handleSearch() {
-  await fetchServices(activeCategory.value, searchQuery.value)
+  if (isSearching.value) return
+  
+  isSearching.value = true
+  abortController.value?.abort()
+  abortController.value = new AbortController()
+  
+  const query = searchQuery.value.trim()
+  
+  try {
+    await fetchServices(activeCategory.value, query, abortController.value.signal)
+    emit('search', query)
+    if (props.onSearch) {
+      props.onSearch(query)
+    }
+  } catch (err) {
+    if (err instanceof Error ? err.name !== 'AbortError' : false) {
+      console.error('搜索请求失败:', err)
+      ElMessage.error('搜索失败，请稍后重试')
+    }
+  } finally {
+    isSearching.value = false
+  }
 }
 </script>
 
 <style scoped lang="scss">
 .market-container {
-  height: 100vh;
+  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #F8F9FA;
-}
-
-.market-header {
   background: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  
-  &.fixed-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-  }
-
-  .header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 24px;
-    height: 60px;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-
-    .logo {
-      font-size: 20px;
-      font-weight: bold;
-      color: #1A73E8;
-    }
-
-    .main-nav {
-      display: flex;
-      gap: 30px;
-
-      .nav-item {
-        padding: 0 10px;
-        cursor: pointer;
-        height: 60px;
-        line-height: 60px;
-        transition: all 0.3s;
-
-        &:hover {
-          color: #1A73E8;
-        }
-
-        &.active {
-          color: #1A73E8;
-          border-bottom: 3px solid #1A73E8;
-        }
-      }
-    }
-  }
-
-  .search-section {
-    padding: 30px 24px;
-    text-align: center;
-
-    .search-title {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: #333;
-
-      .highlight {
-        color: #E60012;
-      }
-    }
-
-    .search-container {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-
-      .search-input {
-        width: 600px;
-      }
-    }
-  }
+  overflow: hidden;
 }
 
   .market-main {
     display: flex;
     flex: 1;
-    overflow: hidden;
+    overflow: auto;
 
     &.with-header {
-      margin-top: 220px; /* 增加顶部间距 */
+      margin-top: 120px; /* 减少顶部间距 */
     }
 
   .category-sidebar {
@@ -272,7 +279,7 @@ async function handleSearch() {
   .market-content {
     flex: 1;
     padding: 24px 24px 0 24px; /* 调整顶部padding */
-    overflow-y: auto;
+    overflow: visible;
     margin-left: 20px;
   }
 }

@@ -1,0 +1,40 @@
+/* 全局交互效果 */
+.el-table__body tr:hover > td {
+  background-color: #f5f7fa;
+  cursor: pointer;
+}
+
+.el-table__body tr.current-row > td {
+  background-color: #ecf5ff;
+}
+
+.el-table__body tr.current-row:hover > td {
+  background-color: #d9ecff;
+}
+
+/* 统一表格单元格内边距 */
+.el-table td {
+  padding: 12px 0;
+}
+
+/* 按钮悬停效果 */
+.el-button:not(.is-disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片悬停效果 */
+.el-card:hover {
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* 标签页激活效果 */
+.el-tabs__item.is-active {
+  color: var(--el-color-primary);
+  font-weight: bold;
+}
+
+/* 输入框聚焦效果 */
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--el-input-focus-border-color) inset;
+}
