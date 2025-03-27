@@ -1,25 +1,27 @@
-# MCP Market
+# MCP Market [![Vite](https://img.shields.io/badge/vite-4.0-blue.svg)]() [![Vue3](https://img.shields.io/badge/vue-3.3-green.svg)]()
 
-MCP Market 是一个基于Vue 3和Vite构建的MCP协议服务器市场应用，提供MCP服务器的浏览、提交和管理功能。
+> MCP协议服务器市场应用
 
-## 功能特点
+## 🚀 功能特性
+- MCP服务器浏览与检索
+- 服务器详情展示
+- 新服务器提交功能
+- API调试工具
+- 响应式设计
 
-- 浏览可用的MCP服务器列表
-- 提交新的MCP服务器
-- 查看服务器详细信息
-- API调试功能
-- 响应式设计，适配多种设备
+## 🛠 技术栈
+- **前端框架**: Vue 3 (Composition API)
+- **构建工具**: Vite 4
+- **UI组件库**: Element Plus
+- **语言**: TypeScript
+- **状态管理**: Pinia
+- **路由**: Vue Router
 
-## 技术栈
+## 🏁 快速开始
 
-- Vue 3 (Composition API)
-- Vite 4
-- Element Plus UI组件库
-- TypeScript
-- Pinia状态管理
-- Vue Router
-
-## 快速开始
+### 环境要求
+- Node.js 16+
+- npm 8+
 
 ### 安装依赖
 ```bash
@@ -36,22 +38,33 @@ npm run dev
 npm run build
 ```
 
-## 项目结构
-
+## 📂 项目结构
 ```
 src/
-├── api/            # API请求封装
+├── api/            # API接口封装
 ├── assets/         # 静态资源
 ├── components/     # 公共组件
+│   ├── MarketHeader.vue
+│   ├── MCPDetail.vue
+│   └── MCPMarket.vue
 ├── mock/           # Mock数据
 ├── router/         # 路由配置
 ├── store/          # 状态管理
-├── views/          # 页面组件
+└── views/          # 页面组件
+    ├── APIPage.vue
+    ├── DebugPage.vue
+    └── SubmitPage.vue
 ```
 
-## 相关链接
+## 🤝 贡献指南
+1. Fork项目
+2. 创建特性分支 (`git checkout -b feature/xxx`)
+3. 提交更改 (`git commit -am 'Add some feature'`)
+4. 推送分支 (`git push origin feature/xxx`)
+5. 创建Pull Request
 
+## 🔗 相关链接
 - [Vue 3 文档](https://vuejs.org/)
 - [Vite 文档](https://vitejs.dev/)
-- [Element Plus 文档](https://element-plus.org/)
+- [Element Plus](https://element-plus.org/)
 - [MCP 协议](https://mcp.so)
