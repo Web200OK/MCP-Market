@@ -73,5 +73,15 @@ export default [
         message: detail ? 'success' : 'not found'
       }
     }
+  },
+  {
+    url: '/api/mcp/categories',
+    method: 'get',
+    response: () => {
+      return {
+        code: 200,
+        data: categories
+      }
+    }
   }
 ] as MockMethod[]

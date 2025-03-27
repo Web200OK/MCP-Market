@@ -54,3 +54,12 @@ export const getMCPDetail = async (id: number): Promise<MCPDetail> => {
 export const submitMCP = async (data: FormData): Promise<void> => {
   await instance.post('/api/mcp/submit', data)
 }
+
+/**
+ * 获取MCP分类列表
+ * @returns Promise<string[]>
+ */
+export const getCategories = async (): Promise<string[]> => {
+  const res = await instance.get('/api/mcp/categories')
+  return res.data
+}
