@@ -11,11 +11,16 @@ export interface MCPItem {
 }
 
 export interface MCPDetail extends MCPItem {
-  author: string
+  artifactId: string
+  name: string
   version: string
-  repository: string
-  documentation: string
-  dependencies: string[]
-  configSchema: Record<string, unknown>
-  createdAt: string
+  description: string
+  runType: string
+  command: string
+  commandParam: string[]
+  url: string
+  envDependency: Record<string, string>
+  envParam: Record<string, string>
+  localInstallPath: string
+  installType: string
 }

@@ -4,7 +4,7 @@
     <!-- 页面头部，带返回按钮 -->
     <el-page-header @back="goBack" content="MCP Server详情" />
     
-    <el-card class="detail-card">
+    <el-card class="detail-card" v-if="server">
       <el-tabs v-model="activeTab">
         <el-tab-pane label="概览" name="overview">
           <el-row :gutter="20">
@@ -12,62 +12,67 @@
               <el-card shadow="hover">
                 <h3 class="info-title">基本信息</h3>
                 <el-descriptions :column="1" border>
-                  <el-descriptions-item label="服务器名称">
-                    <div class="server-name-container">
-                      <span>{{ server.name }}</span>
-                      <el-button 
-                        size="small"
-                        type="primary" 
-                        @click="connectToServer"
-                        :loading="isConnecting"
-                        :disabled="connectionStatus === 'connected'"
-                      >
-                        {{ connectionStatus === 'connected' ? '已连接' : '连接服务器' }}
-                      </el-button>
-                    </div>
-                  </el-descriptions-item>
-                  <el-descriptions-item label="服务器地址">{{ server.address }}</el-descriptions-item>
-                  <el-descriptions-item label="状态">
-                    <el-tag :type="server.status === 'online' ? 'success' : 'danger'">
-                      {{ server.status === 'online' ? '在线' : '离线' }}
-                    </el-tag>
-                  </el-descriptions-item>
+                  <el-descriptions-item label="Artifact ID">{{ server.artifactId }}</el-descriptions-item>
+                  <el-descriptions-item label="名称">{{ server.name }}</el-descriptions-item>
                   <el-descriptions-item label="版本">{{ server.version }}</el-descriptions-item>
-                  <el-descriptions-item label="最后活跃">{{ server.lastActive }}</el-descriptions-item>
-                  <el-descriptions-item label="连接状态">
-                    <el-tag :type="connectionStatus === 'connected' ? 'success' : connectionStatus === 'connecting' ? 'warning' : 'info'">
-                      {{ connectionStatus === 'connected' ? '已连接' : connectionStatus === 'connecting' ? '连接中...' : '未连接' }}
+                  <el-descriptions-item label="运行类型">{{ server.runType }}</el-descriptions-item>
+                  <el-descriptions-item label="安装类型">{{ server.installType }}</el-descriptions-item>
+                  <el-descriptions-item label="本地路径">{{ server.localInstallPath }}</el-descriptions-item>
+                  <el-descriptions-item label="URL">{{ server.url }}</el-descriptions-item>
+                </el-descriptions>
+              </el-card>
+            </el-col>
+            <el-col :span="12">
+              <el-card shadow="hover">
+                <h3 class="info-title">运行配置</h3>
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item label="启动命令">{{ server.command }}</el-descriptions-item>
+                  <el-descriptions-item label="命令参数">
+                    <el-tag v-for="(param, index) in server.commandParam" :key="index" style="margin-right: 5px;">
+                      {{ param }}
                     </el-tag>
+                  </el-descriptions-item>
+                </el-descriptions>
+              </el-card>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20" style="margin-top: 20px;">
+            <el-col :span="12">
+              <el-card shadow="hover">
+                <h3 class="info-title">环境依赖</h3>
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item 
+                    v-for="(value, key) in server.envDependency" 
+                    :key="key" 
+                    :label="key"
+                  >
+                    {{ value }}
                   </el-descriptions-item>
                 </el-descriptions>
               </el-card>
             </el-col>
             <el-col :span="12">
               <el-card shadow="hover">
-                <h3 class="info-title">详细描述</h3>
-                <p class="description-text">{{ server.description }}</p>
+                <h3 class="info-title">环境参数</h3>
+                <el-descriptions :column="1" border>
+                  <el-descriptions-item 
+                    v-for="(value, key) in server.envParam" 
+                    :key="key" 
+                    :label="key"
+                  >
+                    {{ value }}
+                  </el-descriptions-item>
+                </el-descriptions>
               </el-card>
             </el-col>
           </el-row>
         </el-tab-pane>
 
-        <el-tab-pane label="内容" name="content">
+        <el-tab-pane label="描述" name="description">
           <el-card shadow="hover">
-            <h3 class="info-title">服务器内容</h3>
-            <div v-html="server.content"></div>
+            <h3 class="info-title">服务描述</h3>
+            <p class="description-text">{{ server.description }}</p>
           </el-card>
-        </el-tab-pane>
-
-        <el-tab-pane label="工具" name="tools">
-          <el-table :data="server.tools" stripe>
-            <el-table-column prop="name" label="工具名称" width="180" />
-            <el-table-column prop="description" label="描述" />
-            <el-table-column label="操作" width="120">
-              <template #default="scope">
-                <el-button size="small" @click="useTool(scope.row)">使用</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -75,47 +80,59 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'MCPDetail',
   data() {
     return {
-      activeTab: 'overview', // 当前激活的标签页
-      connectionStatus: 'disconnected', // 连接状态: disconnected/connecting/connected
-      isConnecting: false, // 是否正在连接中
-      server: { // 服务器数据对象
-        id: this.$route.params.id, // 从路由参数获取服务器ID
-        name: '示例MCP服务器', // 服务器名称
-        address: '127.0.0.1:8080', // 服务器地址
-        status: 'online', // 服务器状态: online/offline
-        version: '1.0.0', // 服务器版本
-        lastActive: '2025-03-27 10:30:45', // 最后活跃时间
-        description: '这是一个示例MCP服务器，提供各种工具和资源', // 服务器描述
-        content: '<p>服务器包含以下资源：</p><ul><li>API文档</li><li>示例代码</li><li>调试工具</li></ul>', // HTML格式的服务器内容
-        tools: [ // 服务器提供的工具列表
-          { name: 'get_weather', description: '获取天气信息' },
-          { name: 'search_files', description: '搜索文件内容' },
-          { name: 'execute_command', description: '执行系统命令' }
-        ]
-      }
+      activeTab: 'overview',
+      connectionStatus: 'disconnected',
+      isConnecting: false,
+      loading: true,
+      error: null,
+      server: null
     }
   },
+  created() {
+    this.fetchServerDetail()
+  },
   methods: {
-    // 返回上一页
+    async fetchServerDetail() {
+      this.loading = true
+      this.error = null
+      try {
+        const { id } = this.$route.params
+        const { data } = await axios.get('/api/mcp/detail', {
+          params: { id }
+        })
+        
+        if (data.code === 200 && data.data) {
+          this.server = data.data
+        } else {
+          this.error = data.message || 'Failed to load server details'
+          this.$message.error(this.error)
+        }
+      } catch (err) {
+        this.error = err.message || 'Network error'
+        this.$message.error(this.error)
+      } finally {
+        this.loading = false
+      }
+    },
+    
     goBack() {
       this.$router.push('/')
     },
     
-    // 使用工具方法
     useTool(tool) {
       this.$message.success(`准备使用工具: ${tool.name}`)
     },
     
-    // 连接服务器方法
     connectToServer() {
       this.isConnecting = true
       this.connectionStatus = 'connecting'
       
-      // 模拟连接过程
       setTimeout(() => {
         this.isConnecting = false
         this.connectionStatus = 'connected'
