@@ -63,7 +63,11 @@
         </div>
         <div v-else-if="error" class="error">{{ error.message }}</div>
         <div v-else class="service-grid">
+          <div v-if="services.length === 0" class="empty-state">
+            <el-empty description="暂无MCP服务数据" />
+          </div>
           <div 
+            v-else
             v-for="service in services" 
             :key="service.id"
             class="service-card"
@@ -378,6 +382,18 @@ async function handleSearch() {
       border-radius: 8px;
       animation: pulse 1.5s ease-in-out infinite;
     }
+  }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px 0;
+  
+  .empty-text {
+    margin-top: 16px;
+    color: #8E8E93;
+    font-size: 14px;
   }
 }
 
