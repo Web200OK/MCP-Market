@@ -291,12 +291,13 @@ async function handleSearch() {
         transition: all 0.2s;
 
         &:hover {
-          background: #f5f5f5;
+          background: rgba(211, 59, 48, 0.1);
+          color: #d33b30;
         }
 
         &.active {
-          background: #e6f7ff;
-          color: #1890ff;
+          background: rgba(211, 59, 48, 0.1);
+          color: #d33b30;
           font-weight: 500;
         }
       }

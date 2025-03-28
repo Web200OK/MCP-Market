@@ -39,9 +39,16 @@
           <div class="server-overview">
             <el-descriptions :column="2" border>
               <template v-if="currentServer">
-                <el-descriptions-item label="地址">{{ currentServer.address }}</el-descriptions-item>
+                <el-descriptions-item label="服务器名称">{{ currentServer.name }}</el-descriptions-item>
+                <el-descriptions-item label="服务器地址">{{ currentServer.address }}</el-descriptions-item>
                 <el-descriptions-item label="版本">{{ currentServer.version }}</el-descriptions-item>
+                <el-descriptions-item label="状态">
+                  <el-tag :type="currentServer.status === 'online' ? 'success' : 'danger'">
+                    {{ currentServer.status === 'online' ? '在线' : '离线' }}
+                  </el-tag>
+                </el-descriptions-item>
                 <el-descriptions-item label="描述">{{ currentServer.description }}</el-descriptions-item>
+                <el-descriptions-item label="工具数量">{{ currentServer.tools?.length || 0 }}</el-descriptions-item>
               </template>
               <template v-else>
                 <el-descriptions-item label="服务器总数">{{ servers.length }}</el-descriptions-item>
@@ -125,20 +132,6 @@
                     </div>
                     <pre v-highlight><code class="language-json">{{ debugResult }}</code></pre>
                   </el-card>
-                </div>
-                <div v-else>
-                  <el-descriptions :column="1" border>
-                    <el-descriptions-item label="服务器名称">{{ currentServer.name }}</el-descriptions-item>
-                    <el-descriptions-item label="服务器地址">{{ currentServer.address }}</el-descriptions-item>
-                    <el-descriptions-item label="版本">{{ currentServer.version }}</el-descriptions-item>
-                    <el-descriptions-item label="状态">
-                      <el-tag :type="currentServer.status === 'online' ? 'success' : 'danger'">
-                        {{ currentServer.status === 'online' ? '在线' : '离线' }}
-                      </el-tag>
-                    </el-descriptions-item>
-                    <el-descriptions-item label="描述">{{ currentServer.description }}</el-descriptions-item>
-                    <el-descriptions-item label="工具数量">{{ currentServer.tools?.length || 0 }}</el-descriptions-item>
-                  </el-descriptions>
                 </div>
               </el-tab-pane>
             </el-tabs>
