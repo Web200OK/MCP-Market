@@ -29,6 +29,7 @@
           type="primary" 
           size="small"
           @click="showLoginDialog = true"
+          style="background-color: #d33b30; border-color: #d33b30"
         >
           登录
         </el-button>
@@ -164,7 +165,7 @@ const handleSearch = () => {
     .logo {
       font-size: 20px;
       font-weight: bold;
-      color: #1A73E8;
+      color: #d33b30;
     }
 
     .main-nav {
@@ -179,12 +180,12 @@ const handleSearch = () => {
         transition: all 0.3s;
 
         &:hover {
-          color: #1A73E8;
+          color: #d33b30;
         }
 
         &.active {
-          color: #1A73E8;
-          border-bottom: 3px solid #1A73E8;
+          color: #d33b30;
+          border-bottom: 3px solid #d33b30;
         }
       }
     }
@@ -201,7 +202,7 @@ const handleSearch = () => {
       color: #333;
 
       .highlight {
-        color: #E60012;
+        color: #d33b30;
       }
     }
 
