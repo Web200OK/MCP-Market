@@ -10,7 +10,7 @@
           </div>
         </template>
 
-        <el-tabs type="border-card">
+        <el-tabs type="border-card" style="border-color: #999; border-radius: 12px">
           <el-tab-pane label="基础API">
             <h3>获取MCP服务列表</h3>
             <pre>GET /api/mcps</pre>

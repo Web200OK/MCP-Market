@@ -77,10 +77,11 @@
     <div class="search-container">
       <el-input
         v-model="searchQuery"
-        placeholder="你正在寻找什么？"
+        placeholder="请输入搜索关键词"
         clearable
-        @change="handleSearch"
+        @keyup.enter="handleSearch"
         class="search-input"
+        style="border-color: #999"
       >
         <template #prefix>
           <el-icon><search /></el-icon>
@@ -212,7 +213,9 @@ const handleSearch = () => {
       margin-bottom: 20px;
 
       .search-input {
-        width: 600px;
+        width: 800px;
+        height: 50px;
+        border-radius: 4px;
       }
     }
   }

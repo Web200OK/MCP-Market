@@ -72,7 +72,6 @@
             :key="service.id"
             class="service-card"
             @click="goToDetail(service.id)"
-            style="border: 1px solid rgba(0, 122, 255, 0.2); box-shadow: 0 2px 12px 0 rgba(0, 122, 255, 0.1)"
           >
             <div v-if="service.type === 'official'" class="card-badge">
               官方
@@ -404,11 +403,8 @@ async function handleSearch() {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  box-shadow: 
-    0 4px 20px rgba(0, 0, 0, 0.05),
-    0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid #999;
   overflow: hidden;
   position: relative;
   
@@ -435,7 +431,9 @@ async function handleSearch() {
     transform: translateY(-2px);
     box-shadow: 
       0 8px 25px rgba(0, 0, 0, 0.1),
-      0 2px 6px rgba(0, 0, 0, 0.05);
+      0 2px 6px rgba(0, 0, 0, 0.05),
+      0 0 15px rgba(0, 122, 255, 0.5);
+    border-color: rgba(0, 122, 255, 0.5);
   }
 
   &:active {

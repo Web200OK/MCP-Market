@@ -2,7 +2,7 @@ x<template>
   <div class="submit-page">
     <h2>提交MCP Server</h2>
     <div class="submit-content">
-      <el-card class="submit-card">
+      <el-card class="submit-card" style="border-color: #999">
         <template #header>
           <div class="card-header">
             <span>提交新的MCP服务</span>

@@ -5,7 +5,7 @@
     <div class="debug-container">
       <!-- 左侧服务器列表 -->
       <div class="server-list">
-        <el-card>
+        <el-card style="border-color: #999">
           <template #header>
             <div class="card-header">热门MCP服务器</div>
           </template>
@@ -28,7 +28,7 @@
 
       <!-- 右侧调试区域 -->
       <div class="debug-area">
-        <el-card>
+        <el-card style="border-color: #999">
           <template #header>
             <div class="card-header">
               {{ currentServer ? `${currentServer.name} 调试` : 'MCP Server 概览' }}
