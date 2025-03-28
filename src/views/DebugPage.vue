@@ -153,14 +153,16 @@
 // 导入Vue响应式API
 import { ref } from 'vue'
 
+// 导入API方法
+import { getMCPList, getMCPTools } from '@/api/mcp'
+
 // 从mock接口获取服务器数据
 const servers = ref([])
 
 // 获取服务器列表
 const fetchServers = async () => {
   try {
-    const response = await fetch('/api/mcp/list')
-    const { data } = await response.json()
+    const data = await getMCPList()
     servers.value = data.map(item => ({
       id: item.id.toString(),
       name: item.name,
@@ -195,8 +197,7 @@ const handleServerChange = async (server) => {
   
   try {
     // 获取服务器工具列表
-    const response = await fetch(`/api/mcp/tools?id=${server.id}`)
-    const { data } = await response.json()
+    const data = await getMCPTools(server.id)
     currentServer.value.tools = data
   } catch (error) {
     console.error('获取工具列表失败:', error)

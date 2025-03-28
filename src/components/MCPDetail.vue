@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import { getMCPDetail } from '@/api/mcp'
 
 export default {
   name: 'MCPDetail',
@@ -103,16 +103,7 @@ export default {
       this.error = null
       try {
         const { id } = this.$route.params
-        const { data } = await axios.get('/api/mcp/detail', {
-          params: { id }
-        })
-        
-        if (data.code === 200 && data.data) {
-          this.server = data.data
-        } else {
-          this.error = data.message || 'Failed to load server details'
-          this.$message.error(this.error)
-        }
+        this.server = await getMCPDetail(id)
       } catch (err) {
         this.error = err.message || 'Network error'
         this.$message.error(this.error)

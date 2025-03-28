@@ -47,6 +47,16 @@ export const getMCPDetail = async (id: number): Promise<MCPDetail> => {
 }
 
 /**
+ * 获取MCP服务器工具列表
+ * @param id 服务器ID
+ * @returns Promise<any[]>
+ */
+export const getMCPTools = async (id: string): Promise<any[]> => {
+  const res = await instance.get('/api/mcp/tools', { params: { id } })
+  return res.data
+}
+
+/**
  * 提交新的MCP服务器
  * @param data 服务器数据
  * @returns Promise<void>
