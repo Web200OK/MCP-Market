@@ -90,20 +90,40 @@
                 </div>
                 <div v-if="selectedTool" class="tool-debug-area">
                   <h3>调试工具: {{ selectedTool.name }}</h3>
-                  <el-form label-width="100px">
-                    <el-form-item 
-                      v-for="param in selectedTool.params" 
-                      :key="param.name"
-                      :label="param.name"
-                    >
-                      <el-input v-model="param.value" :placeholder="`输入${param.name}`" />
-                    </el-form-item>
-                    <el-form-item>
-                      <el-button type="primary" @click="executeTool">执行</el-button>
-                    </el-form-item>
-                  </el-form>
+                  <div class="tool-debug-form">
+                    <el-form label-width="120px" label-position="top">
+                      <el-form-item 
+                        v-for="param in selectedTool.params" 
+                        :key="param.name"
+                        :label="param.name"
+                      >
+                        <el-input 
+                          v-model="param.value" 
+                          :placeholder="`输入${param.name}`"
+                          clearable
+                        />
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button 
+                          type="primary" 
+                          @click="executeTool"
+                          :loading="isExecuting"
+                        >
+                          {{ isExecuting ? '执行中...' : '执行' }}
+                        </el-button>
+                      </el-form-item>
+                    </el-form>
+                  </div>
                   <el-card v-if="debugResult" class="result-card">
-                    <pre>{{ debugResult }}</pre>
+                    <div class="result-header">
+                      <span>执行结果</span>
+                      <el-button 
+                        type="text" 
+                        icon="el-icon-document-copy" 
+                        @click="copyResult"
+                      />
+                    </div>
+                    <pre v-highlight><code class="language-json">{{ debugResult }}</code></pre>
                   </el-card>
                 </div>
                 <div v-else>
@@ -133,45 +153,30 @@
 // 导入Vue响应式API
 import { ref } from 'vue'
 
-// 模拟服务器数据
-const servers = ref([
-  {
-    id: '1',
-    name: '天气服务',
-    address: 'weather.example.com',
-    status: 'online',
-    version: '1.2.0',
-    description: '提供全球天气数据查询服务',
-    tools: [
-      {
-        name: 'get_weather',
-        description: '获取指定城市天气',
-        params: [
-          { name: 'city', value: '', required: true },
-          { name: 'days', value: '3', required: false }
-        ]
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: '文件服务',
-    address: 'files.example.com',
-    status: 'online',
-    version: '2.1.0',
-    description: '提供文件搜索和管理功能',
-    tools: [
-      {
-        name: 'search_files',
-        description: '搜索文件内容',
-        params: [
-          { name: 'path', value: '', required: true },
-          { name: 'pattern', value: '', required: true }
-        ]
-      }
-    ]
+// 从mock接口获取服务器数据
+const servers = ref([])
+
+// 获取服务器列表
+const fetchServers = async () => {
+  try {
+    const response = await fetch('/api/mcp/list')
+    const { data } = await response.json()
+    servers.value = data.map(item => ({
+      id: item.id.toString(),
+      name: item.name,
+      address: '',
+      status: 'online',
+      version: '',
+      description: item.description,
+      tools: []
+    }))
+  } catch (error) {
+    console.error('获取服务器列表失败:', error)
   }
-])
+}
+
+// 初始化时获取数据
+fetchServers()
 
 // 调试页面状态管理
 const currentServer = ref(null) // 当前选中的服务器
@@ -182,11 +187,21 @@ const connectionStatus = ref('disconnected') // 连接状态: disconnected/conne
 const isConnecting = ref(false) // 是否正在连接中
 
 // 处理服务器选择变化
-const handleServerChange = (server) => {
+const handleServerChange = async (server) => {
   currentServer.value = server // 更新当前服务器
   selectedTool.value = null // 重置选中工具
   debugResult.value = null // 清空调试结果
   connectionStatus.value = 'disconnected' // 重置连接状态
+  
+  try {
+    // 获取服务器工具列表
+    const response = await fetch(`/api/mcp/tools?id=${server.id}`)
+    const { data } = await response.json()
+    currentServer.value.tools = data
+  } catch (error) {
+    console.error('获取工具列表失败:', error)
+    currentServer.value.tools = []
+  }
 }
 
 // 选择工具方法
@@ -292,11 +307,40 @@ const executeTool = () => {
   background-color: rgba(255, 255, 255, 0.9);
 }
 
+.tool-debug-form {
+  margin-bottom: 20px;
+}
+
+.result-card {
+  margin-top: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
+}
+
 .result-card pre {
   white-space: pre-wrap;
   word-wrap: break-word;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #1c1c1e;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  padding: 15px;
+  margin: 0;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+}
+
+pre code.hljs {
+  padding: 0;
+  background: transparent;
 }
 
 /* iOS风格按钮 */

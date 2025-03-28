@@ -123,5 +123,27 @@ export default [
         message: '提交成功'
       }
     }
+  },
+  {
+    url: '/api/mcp/tools',
+    method: 'get',
+    response: ({ query }: { query: { id: string } }) => {
+      const tools = Mock.mock({
+        'list|3-8': [{
+          'name': '@ctitle(5, 10)',
+          'description': '@cparagraph(1, 3)',
+          'params|1-3': [{
+            'name': '@word(3,8)',
+            'value': ''
+          }]
+        }]
+      }).list
+      
+      return {
+        code: 200,
+        data: tools,
+        message: 'success'
+      }
+    }
   }
 ] as MockMethod[]
