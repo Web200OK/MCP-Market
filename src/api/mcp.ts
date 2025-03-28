@@ -1,3 +1,6 @@
+import { getMCPList } from './mcp/list'
+import { getMCPDetail } from './mcp/detail'
+import { getMCPTools } from './mcp/tools'
 import axios from 'axios'
 import type { MCPItem, MCPDetail } from '@/types/mcp'
 
@@ -22,41 +25,6 @@ instance.interceptors.response.use(
 )
 
 /**
- * 获取MCP服务器列表
- * @param params 查询参数
- * @returns Promise<MCPItem[]>
- */
-export const getMCPList = async (params?: {
-  category?: string
-  search?: string
-  page?: number
-  size?: number
-}): Promise<MCPItem[]> => {
-  const res = await instance.get('/api/mcp/list', { params })
-  return res.data
-}
-
-/**
- * 获取MCP服务器详情
- * @param id 服务器ID
- * @returns Promise<MCPDetail>
- */
-export const getMCPDetail = async (id: number): Promise<MCPDetail> => {
-  const res = await instance.get('/api/mcp/detail', { params: { id } })
-  return res.data
-}
-
-/**
- * 获取MCP服务器工具列表
- * @param id 服务器ID
- * @returns Promise<any[]>
- */
-export const getMCPTools = async (id: string): Promise<any[]> => {
-  const res = await instance.get('/api/mcp/tools', { params: { id } })
-  return res.data
-}
-
-/**
  * 提交新的MCP服务器
  * @param data 服务器数据
  * @returns Promise<void>
@@ -72,4 +40,10 @@ export const submitMCP = async (data: FormData): Promise<void> => {
 export const getCategories = async (): Promise<string[]> => {
   const res = await instance.get('/api/mcp/categories')
   return res.data
+}
+
+export {
+  getMCPList,
+  getMCPDetail,
+  getMCPTools
 }
