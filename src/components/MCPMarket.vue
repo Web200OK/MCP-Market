@@ -86,8 +86,8 @@
             <p class="card-desc">{{ service.description }}</p>
             <div class="card-footer">
               <div class="card-stats">
-                <span>{{ service.stats.downloads }}次下载</span>
-                <span>评分: {{ service.stats.rating }}</span>
+              <span>{{ service.downloads }}次下载</span>
+              <span>评分: {{ service.rating.toFixed(1) }}</span>
               </div>
               <el-button 
                 size="small" 
@@ -123,16 +123,8 @@ import { ElMessage } from 'element-plus'
 import { getMCPList, getCategories } from '@/api/mcp'
 import type { MCPItem } from '@/types/mcp'
 
-interface ServiceItem {
+interface ServiceItem extends Omit<MCPItem, 'id'> {
   id: string
-  name: string
-  type: string
-  tags: string[]
-  description: string
-  stats: {
-    downloads: number
-    rating: string
-  }
   isDownload: boolean
 }
 
@@ -160,20 +152,13 @@ const fetchServices = async (category = '', search = '', signal?: AbortSignal) =
     const data = await getMCPList({ category, search })
     
     services.value = data.map(item => ({
+      ...item,
       id: item.id.toString(),
-      name: item.name,
+      isDownload: false,
       type: item.type || 'official',
-      tags: [
-        `#${item.category}`,
-        `#${item.rating ? item.rating.toFixed(1) : '5.0'}`,
-        `#${item.downloads || 0}下载`
-      ],
       description: item.description || '暂无描述',
-      stats: {
-        downloads: item.downloads || 0,
-        rating: item.rating ? item.rating.toFixed(1) : '5.0'
-      },
-      isDownload: false
+      downloads: item.downloads || 0,
+      rating: item.rating || 5.0
     }))
   } catch (err) {
     error.value = err as Error

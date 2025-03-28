@@ -8,6 +8,7 @@ export interface MCPItem {
   downloads: number
   updatedAt: string
   type?: string
+  tags?: string[]
 }
 
 export interface MCPDetail extends MCPItem {

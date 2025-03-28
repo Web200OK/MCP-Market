@@ -1,16 +1,7 @@
 import type { MockMethod } from 'vite-plugin-mock'
 import Mock from 'mockjs'
 
-export interface MCPItem {
-  id: number
-  name: string
-  description: string
-  status: 'online' | 'offline' | 'maintenance'
-  lastActive: string
-  ip: string
-  port: number
-  category: string
-}
+import type { MCPItem } from '@/types/mcp'
 
 export interface McpserviceRegistrationInfo {
   artifactId: string
@@ -42,11 +33,13 @@ const mcpList = Mock.mock({
     'id|+1': 1,
     'name': '@ctitle(5, 10)',
     'description': '@cparagraph(1, 3)',
-    'status|1': ['online', 'offline', 'maintenance'],
-    'lastActive': '@datetime',
-    'ip': '@ip',
-    'port': '@natural(1000, 9999)',
-    'category|1': categories
+    'category|1': categories,
+    'icon': '@word(5,10).png',
+    'rating|1-5.1': 1,
+    'downloads|100-10000': 1,
+    'updatedAt': '@datetime',
+    'type|1': ['official', 'community', 'verified'],
+    'tags|0-3': ['@word(3,8)']
   }]
 })
 
