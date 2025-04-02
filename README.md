@@ -56,6 +56,37 @@ src/
     └── SubmitPage.vue
 ```
 
+## 📡 API接口文档
+
+### 服务器相关
+- `getMCPList(params)`: 获取MCP服务器列表
+  - 参数: `{ category?: string, search?: string, page?: number, size?: number }`
+  - 返回: `Promise<MCPItem[]>`
+
+- `getMCPDetail(id)`: 获取MCP服务器详情
+  - 参数: `id: number`
+  - 返回: `Promise<MCPDetail>`
+
+- `submitMCP(data)`: 提交新的MCP服务器
+  - 参数: `data: FormData`
+  - 返回: `Promise<void>`
+
+- `getCategories()`: 获取MCP分类列表
+  - 返回: `Promise<string[]>`
+
+### 工具相关
+- `getMCPTools(id)`: 获取MCP服务器工具列表
+  - 参数: `id: string`
+  - 返回: `Promise<any[]>`
+
+- `debugTool(data)`: 调试工具
+  - 参数: `{ tool: string, params: Record<string, string> }`
+  - 返回: `Promise<DebugResult>`
+
+### 已安装服务器
+- `getInstalledMCPList()`: 获取已安装的MCP服务器列表
+  - 返回: `Promise<MCPItem[]>`
+
 ## 🤝 贡献指南
 1. Fork项目
 2. 创建特性分支 (`git checkout -b feature/xxx`)
