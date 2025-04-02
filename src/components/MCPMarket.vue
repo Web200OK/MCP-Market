@@ -44,7 +44,7 @@
       <main class="market-content">
         <div v-if="loading" class="service-grid">
           <div 
-            v-for="n in 6" 
+            v-for="n in 8" 
             :key="n"
             class="service-card skeleton"
           >
@@ -314,8 +314,8 @@ async function handleSearch() {
 /* 保留原有服务卡片样式 */
 .service-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   padding-bottom: 40px;
 }
 
@@ -399,10 +399,10 @@ async function handleSearch() {
 
 .service-card {
   position: relative;
-  padding: 24px;
+  padding: 16px;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
-  border-radius: 16px;
+  border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   border: 1px solid #999;
   overflow: hidden;
@@ -453,8 +453,8 @@ async function handleSearch() {
   }
 
   .card-title {
-    margin: 0 0 16px;
-    font-size: 20px;
+    margin: 0 0 12px;
+    font-size: 16px;
     font-weight: 700;
     color: #1C1C1E;
   }
@@ -473,9 +473,10 @@ async function handleSearch() {
   }
 
   .card-desc {
-    margin: 0 0 20px;
-    font-size: 15px;
-    line-height: 1.5;
+    height: 60px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
     color: #636366;
   }
 
@@ -485,17 +486,19 @@ async function handleSearch() {
     align-items: center;
 
     .card-stats {
-      font-size: 13px;
+      font-size: 11px;
       color: #8E8E93;
 
       span:first-child {
-        margin-right: 12px;
+        margin-right: 8px;
       }
     }
 
     .el-button {
-      border-radius: 8px;
+      border-radius: 6px;
       font-weight: 500;
+      font-size: 12px;
+      padding: 6px 10px;
     }
   }
 }
