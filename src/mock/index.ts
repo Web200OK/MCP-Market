@@ -177,5 +177,21 @@ export default [
         message: 'success'
       }
     }
+  },
+  {
+    url: '/api/mcp/debug',
+    method: 'post',
+    response: ({ body }: { body: { tool: string; params: Record<string, string> } }) => {
+      return {
+        code: 200,
+        data: {
+          tool: body.tool,
+          params: body.params,
+          result: Mock.mock('@cparagraph(1, 3)'),
+          timestamp: new Date().toISOString()
+        },
+        message: '调试成功'
+      }
+    }
   }
 ] as MockMethod[]

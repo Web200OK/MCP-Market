@@ -2,6 +2,7 @@ import { getMCPList } from './mcp/list'
 import { getMCPDetail } from './mcp/detail'
 import { getMCPTools } from './mcp/tools'
 import { getInstalledMCPList } from './mcp/installed'
+import { debugTool } from './mcp/debug'
 import axios from 'axios'
 import type { MCPItem, MCPDetail } from '@/types/mcp'
 
@@ -47,5 +48,6 @@ export {
   getMCPList,
   getMCPDetail,
   getMCPTools,
-  getInstalledMCPList
+  getInstalledMCPList,
+  debugTool
 }

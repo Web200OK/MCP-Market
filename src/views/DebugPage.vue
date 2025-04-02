@@ -147,7 +147,7 @@
 import { ref } from 'vue'
 
 // 导入API方法
-import { getInstalledMCPList, getMCPTools } from '@/api/mcp'
+import { getInstalledMCPList, getMCPTools, debugTool } from '@/api/mcp'
 
 // 从mock接口获取服务器数据
 const servers = ref([])
@@ -225,21 +225,32 @@ const connectServer = async () => {
   }
 }
 
-const executeTool = () => {
-  if (connectionStatus.value !== 'connected') {
+const executeTool = async () => {
+  if (connectionStatus.value !== 'connected' || !selectedTool.value) {
     return
   }
   
-  // 模拟执行工具
-  debugResult.value = JSON.stringify({
-    tool: selectedTool.value.name, // 工具名称
-    params: selectedTool.value.params.reduce((acc, param) => {
-      acc[param.name] = param.value // 收集参数
+  try {
+    const params = selectedTool.value.params.reduce((acc, param) => {
+      acc[param.name] = param.value
       return acc
-    }, {}),
-    result: '执行成功', // 执行结果
-    timestamp: new Date().toISOString() // 时间戳
-  }, null, 2) // 格式化JSON输出
+    }, {})
+    
+    const { data } = await debugTool({
+      tool: selectedTool.value.name,
+      params
+    })
+    
+    debugResult.value = JSON.stringify(data, null, 2)
+  } catch (error) {
+    console.error('调试失败:', error)
+    debugResult.value = JSON.stringify({
+      tool: selectedTool.value.name,
+      params: {},
+      result: '调试失败: ' + error.message,
+      timestamp: new Date().toISOString()
+    }, null, 2)
+  }
 }
 
 </script>
