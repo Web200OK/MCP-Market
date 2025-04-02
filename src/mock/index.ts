@@ -39,7 +39,7 @@ const mcpList = Mock.mock({
     'downloads|100-10000': 1,
     'updatedAt': '@datetime',
     'type|1': ['official', 'community', 'verified'],
-    'tags|0-3': ['@word(3,8)']
+    'tags|1-3': ['@word(3,8)']
   }]
 })
 
@@ -191,6 +191,17 @@ export default [
           timestamp: new Date().toISOString()
         },
         message: '调试成功'
+      }
+    }
+  },
+  {
+    url: '/api/mcpserver/status',
+    method: 'get',
+    response: () => {
+      return {
+        code: 200,
+        data: true,
+        message: 'success'
       }
     }
   }

@@ -2,7 +2,10 @@
 <template>
   <div class="debug-page" style="height: 100%;">
     <h2>MCP Server 调试工具</h2>
-    <div class="debug-container">
+    <div v-if="showEmptyState" class="empty-state">
+      <el-empty description="请先连接本地MCP Server服务" />
+    </div>
+    <div v-if="!showEmptyState" class="debug-container">
       <!-- 左侧服务器列表 -->
       <div class="server-list">
         <el-card style="border-color: #999">
@@ -144,10 +147,10 @@
 
 <script setup>
 // 导入Vue响应式API
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // 导入API方法
-import { getInstalledMCPList, getMCPTools, debugTool } from '@/api/mcp'
+import { getInstalledMCPList, getMCPTools, debugTool, getMCPStatus } from '@/api/mcp'
 
 // 从mock接口获取服务器数据
 const servers = ref([])
@@ -172,6 +175,27 @@ const fetchServers = async () => {
 
 // 初始化时获取数据
 fetchServers()
+
+// 检测服务器状态
+const serverStatus = ref(false) // 服务器状态
+const showEmptyState = ref(false) // 是否显示空白状态
+
+// 检测服务器状态
+const checkServerStatus = async () => {
+  try {
+    const { data: status } = await getMCPStatus()
+    serverStatus.value = status
+    showEmptyState.value = !status
+  } catch (error) {
+    console.error('检测服务器状态失败:', error)
+    showEmptyState.value = true
+  }
+}
+
+// 页面挂载时检测服务器状态
+onMounted(() => {
+  checkServerStatus()
+})
 
 // 调试页面状态管理
 const currentServer = ref(null) // 当前选中的服务器
