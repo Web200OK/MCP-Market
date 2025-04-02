@@ -1,6 +1,7 @@
 import { getMCPList } from './mcp/list'
 import { getMCPDetail } from './mcp/detail'
 import { getMCPTools } from './mcp/tools'
+import { getInstalledMCPList } from './mcp/installed'
 import axios from 'axios'
 import type { MCPItem, MCPDetail } from '@/types/mcp'
 
@@ -45,5 +46,6 @@ export const getCategories = async (): Promise<string[]> => {
 export {
   getMCPList,
   getMCPDetail,
-  getMCPTools
+  getMCPTools,
+  getInstalledMCPList
 }

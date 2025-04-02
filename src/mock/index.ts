@@ -66,6 +66,38 @@ const mcpDetails = Mock.mock({
 
 export default [
   {
+    url: '/api/mcp/installed',
+    method: 'get',
+    response: () => {
+      const installedList = mcpList.list.filter((item: MCPItem) => item.type === 'official')
+      return {
+        code: 200,
+        data: installedList
+      }
+    }
+  },
+  {
+    url: '/api/mcp/installed-servers',
+    method: 'get',
+    response: () => {
+      const installedServers = Mock.mock({
+        'list|3-5': [{
+          'id|+1': 100,
+          'name': '@ctitle(5, 10) Server',
+          'address': 'http://@domain',
+          'status|1': ['online', 'offline', 'maintenance'],
+          'version': '@natural(1, 5).@natural(0, 9).0',
+          'description': '@cparagraph(1, 3)',
+          'tools': []
+        }]
+      }).list
+      return {
+        code: 200,
+        data: installedServers
+      }
+    }
+  },
+  {
     url: '/api/mcp/list',
     method: 'get',
     response: ({ query }: { query: { category?: string; search?: string } }) => {

@@ -1,13 +1,13 @@
 <!-- MCP服务器调试页面模板 -->
 <template>
-  <div class="debug-page">
+  <div class="debug-page" style="height: 100%;">
     <h2>MCP Server 调试工具</h2>
     <div class="debug-container">
       <!-- 左侧服务器列表 -->
       <div class="server-list">
         <el-card style="border-color: #999">
           <template #header>
-            <div class="card-header">热门MCP服务器</div>
+            <div class="card-header">已安装MCP服务器</div>
           </template>
           <el-table 
             :data="servers" 
@@ -147,7 +147,7 @@
 import { ref } from 'vue'
 
 // 导入API方法
-import { getMCPList, getMCPTools } from '@/api/mcp'
+import { getInstalledMCPList, getMCPTools } from '@/api/mcp'
 
 // 从mock接口获取服务器数据
 const servers = ref([])
@@ -155,7 +155,7 @@ const servers = ref([])
 // 获取服务器列表
 const fetchServers = async () => {
   try {
-    const data = await getMCPList()
+    const data = await getInstalledMCPList()
     servers.value = data.map(item => ({
       id: item.id.toString(),
       name: item.name,
@@ -166,7 +166,7 @@ const fetchServers = async () => {
       tools: []
     }))
   } catch (error) {
-    console.error('获取服务器列表失败:', error)
+    console.error('获取已安装服务器列表失败:', error)
   }
 }
 
