@@ -70,34 +70,16 @@
 
           <!-- 工具列表和调试区 -->
           <div class="tool-debug" v-if="currentServer">
-            <div class="connection-status">
-              <el-button 
-                type="primary" 
-                @click="connectServer"
-                :loading="isConnecting"
-                :disabled="connectionStatus === 'connected'"
-              >
-                {{ connectionStatus === 'connected' ? '已连接' : isConnecting ? '连接中...' : '连接服务器' }}
-              </el-button>
-              <el-tag :type="connectionStatus === 'connected' ? 'success' : 'danger'">
-                {{ connectionStatus === 'connected' ? '已连接' : connectionStatus === 'connecting' ? '连接中' : '未连接' }}
-              </el-tag>
-            </div>
+            
             <el-tabs v-model="activeToolTab">
-              <el-tab-pane label="工具列表" name="tools" :disabled="connectionStatus !== 'connected'">
-                <div v-if="connectionStatus !== 'connected'" class="tab-disabled-hint">
-                  <el-empty description="请先连接服务器以查看工具列表" />
-                </div>
-                <el-table v-else :data="currentServer.tools" @row-click="selectTool">
+              <el-tab-pane label="工具列表" name="tools" >
+                <el-table :data="currentServer.tools" @row-click="selectTool">
                   <el-table-column prop="name" label="工具名称" />
                   <el-table-column prop="description" label="描述" />
                 </el-table>
               </el-tab-pane>
               
-              <el-tab-pane label="调试" name="debug" :disabled="connectionStatus !== 'connected' || !selectedTool">
-                <div v-if="connectionStatus !== 'connected'" class="tab-disabled-hint">
-                  <el-empty description="请先连接服务器以使用调试功能" />
-                </div>
+              <el-tab-pane label="调试" name="debug" :disabled="!selectedTool">
                 <div v-if="selectedTool" class="tool-debug-area">
                   <h3>调试工具: {{ selectedTool.name }}</h3>
                   <div class="tool-debug-form">
@@ -202,15 +184,13 @@ const currentServer = ref(null) // 当前选中的服务器
 const selectedTool = ref(null) // 当前选中的工具
 const activeToolTab = ref('tools') // 当前激活的标签页
 const debugResult = ref(null) // 调试结果
-const connectionStatus = ref('disconnected') // 连接状态: disconnected/connecting/connected
-const isConnecting = ref(false) // 是否正在连接中
+
 
 // 处理服务器选择变化
 const handleServerChange = async (server) => {
   currentServer.value = server // 更新当前服务器
   selectedTool.value = null // 重置选中工具
   debugResult.value = null // 清空调试结果
-  connectionStatus.value = 'disconnected' // 重置连接状态
   
   try {
     // 获取服务器工具列表
@@ -229,28 +209,10 @@ const selectTool = (tool) => {
 }
 
 // 执行工具方法
-// 连接服务器方法
-const connectServer = async () => {
-  if (!currentServer.value) return
-  
-  try {
-    isConnecting.value = true
-    connectionStatus.value = 'connecting'
-    
-    // 模拟连接过程
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    connectionStatus.value = 'connected'
-  } catch (error) {
-    connectionStatus.value = 'disconnected'
-    console.error('连接失败:', error)
-  } finally {
-    isConnecting.value = false
-  }
-}
+
 
 const executeTool = async () => {
-  if (connectionStatus.value !== 'connected' || !selectedTool.value) {
+  if (!selectedTool.value) {
     return
   }
   
