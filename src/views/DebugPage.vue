@@ -43,7 +43,6 @@
             <el-descriptions :column="2" border>
               <template v-if="currentServer">
                 <el-descriptions-item label="服务器名称">{{ currentServer.name }}</el-descriptions-item>
-                <el-descriptions-item label="服务器地址">{{ currentServer.address }}</el-descriptions-item>
                 <el-descriptions-item label="版本">{{ currentServer.version }}</el-descriptions-item>
                 <el-descriptions-item label="状态">
                   <el-tag :type="currentServer.status === 'online' ? 'success' : 'danger'">
@@ -79,7 +78,7 @@
                 </el-table>
               </el-tab-pane>
               
-              <el-tab-pane label="调试" name="debug" :disabled="!selectedTool">
+              <el-tab-pane label="调试" name="debug" :disabled="!selectedTool || isExecuting">
                 <div v-if="selectedTool" class="tool-debug-area">
                   <h3>调试工具: {{ selectedTool.name }}</h3>
                   <div class="tool-debug-form">
@@ -159,11 +158,10 @@ const fetchServers = async () => {
     servers.value = data.servers.map(item => ({
       id: item.id.toString(),
       name: item.name,
-      address: '',
       status: 'online',
-      version: '',
-      description: item.description,
-      tools: item.tools
+      version: item.version || '',
+      description: item.description || '暂无描述',
+      tools: item.tools || []
     }))
   } catch (error) {
     console.error('获取已安装服务器列表失败:', error)
@@ -182,6 +180,7 @@ const currentServer = ref(null) // 当前选中的服务器
 const selectedTool = ref(null) // 当前选中的工具
 const activeToolTab = ref('tools') // 当前激活的标签页
 const debugResult = ref(null) // 调试结果
+const isExecuting = ref(false) // 执行状态
 
 
 // 处理服务器选择变化
@@ -215,6 +214,9 @@ const executeTool = async () => {
     return
   }
   
+  isExecuting.value = true
+  debugResult.value = null
+  
   try {
     const requestData = {
       id: currentServer.value.id,
@@ -235,6 +237,8 @@ const executeTool = async () => {
       result: '调试失败: ' + error.message,
       timestamp: new Date().toISOString()
     }, null, 2)
+  } finally {
+    isExecuting.value = false
   }
 }
 
