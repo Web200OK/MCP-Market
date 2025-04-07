@@ -4,6 +4,7 @@ import { getMCPTools } from './mcp/tools'
 import { getInstalledMCPList } from './mcp/installed'
 import { debugTool } from './mcp/debug'
 import { getMCPStatus } from './mcp/status'
+import { installMCP } from './mcp/install'
 import axios from 'axios'
 import type { MCPItem, MCPDetail } from '@/types/mcp'
 
@@ -51,5 +52,6 @@ export {
   getMCPTools,
   getInstalledMCPList,
   debugTool,
-  getMCPStatus
+  getMCPStatus,
+  installMCP
 }

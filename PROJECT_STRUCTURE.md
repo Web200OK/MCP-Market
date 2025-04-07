@@ -19,8 +19,11 @@ d:/mcp-market/MCP-Market/
 ├── src/                     # 源代码
 │   ├── api/                 # API接口
 │   │   ├── mcp/             # MCP相关API
+│   │   │   ├── debug.ts     # 调试接口
 │   │   │   ├── detail.ts    # 详情接口
+│   │   │   ├── installed.ts # 已安装服务接口
 │   │   │   ├── list.ts      # 列表接口
+│   │   │   ├── status.ts    # 状态接口
 │   │   │   └── tools.ts     # 工具接口
 │   │   ├── mcp.ts           # MCP主接口
 │   │   └── request.ts       # 请求封装
@@ -72,6 +75,14 @@ d:/mcp-market/MCP-Market/
   - MCP服务详情展示
   - 工具调用界面
   - 资源访问界面
+
+### 3.3 MCP调试
+- 组件: `DebugPage.vue`
+- 路由: `/mcp-debug`
+- 功能:
+  - MCP服务器连接状态检测
+  - 工具调试执行
+  - 调试结果展示
 
 ## 4. 技术栈
 - Vue 3 + Composition API

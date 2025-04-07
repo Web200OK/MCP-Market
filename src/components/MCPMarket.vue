@@ -95,9 +95,10 @@
               <el-button 
                 size="small" 
                 :type="service.isDownload ? 'success' : 'primary'"
+                :loading="installingId === service.id"
                 @click.stop="handleInstall(service)"
               >
-                {{ service.isDownload ? '已安装' : '点击安装' }}
+                {{ service.isDownload ? '已安装' : installingId === service.id ? '安装中...' : '点击安装' }}
               </el-button>
             </div>
           </div>
@@ -123,7 +124,7 @@ const props = defineProps<{
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getMCPList, getCategories } from '@/api/mcp'
+import { getMCPList, getCategories, installMCP } from '@/api/mcp'
 import type { MCPItem } from '@/types/mcp'
 
 interface ServiceItem extends Omit<MCPItem, 'id'> {
@@ -204,9 +205,24 @@ async function filterByCategory(category: string) {
   }
 }
 
-function handleInstall(service: ServiceItem) {
-  service.isDownload = true
-  ElMessage.success(`${service.name} 安装成功`)
+const installingId = ref<string>('') // 当前正在安装的服务ID
+
+async function handleInstall(service: ServiceItem) {
+  try {
+    installingId.value = service.id
+    const res = await installMCP(service.id)
+    if(res.status === 'installed') {
+      service.isDownload = true
+      ElMessage.success(`${service.name} 安装成功`)
+    }else {
+      ElMessage.error('安装失败，请稍后重试')
+    }
+  } catch (err) {
+    console.error('安装失败:', err)
+    ElMessage.error('安装失败，请稍后重试')
+  } finally {
+    installingId.value = ''
+  }
 }
 
 const isSearching = ref(false)
