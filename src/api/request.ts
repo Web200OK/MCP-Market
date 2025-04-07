@@ -1,23 +1,56 @@
-import axios from 'axios'
+import axios, { 
+  AxiosInstance, 
+  InternalAxiosRequestConfig, 
+  AxiosResponse, 
+  AxiosError 
+} from 'axios'
 
-const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/',
+// 创建mock实例
+const mockInstance: AxiosInstance = axios.create({
+  baseURL: '/',
   timeout: 10000
 })
 
-// 请求拦截器
-instance.interceptors.request.use(config => {
-  config.headers['Authorization'] = localStorage.getItem('token') || ''
-  return config
+// 创建远程实例
+const remoteInstance: AxiosInstance = axios.create({
+  baseURL: '/server',
+  timeout: 10000,
+  withCredentials: true
 })
 
-// 响应拦截器
-instance.interceptors.response.use(
-  response => response.data,
-  error => {
-    console.error('API Error:', error)
-    return Promise.reject(error)
-  }
-)
+// 通用请求拦截器
+const setupInterceptors = (instance: AxiosInstance) => {
+  instance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    if (!config.headers) {
+      config.headers = new axios.AxiosHeaders()
+    }
+    config.headers.set('Authorization', localStorage.getItem('token') || '')
+    config.headers.set('Content-Type', 'application/json')
+    return config
+  })
 
-export default instance
+  instance.interceptors.response.use(
+    (response: AxiosResponse) => response.data,
+    (error: AxiosError) => {
+      console.error('API Error:', error)
+      return Promise.reject(error)
+    }
+  )
+}
+
+setupInterceptors(mockInstance)
+setupInterceptors(remoteInstance)
+
+// 根据路径选择实例
+const request = (config: InternalAxiosRequestConfig & { url: string }) => {
+  // 判断是否为mock接口
+  const isMockApi = config.url.startsWith('/api/mcp')
+  
+  if (isMockApi) {
+    return mockInstance(config)
+  } else {
+    return remoteInstance(config)
+  }
+}
+
+export default request

@@ -12,7 +12,7 @@ export const getMCPList = async (params?: {
   page?: number
   size?: number
 }): Promise<MCPItem[]> => {
-  const res = await request.get('/api/mcp/list', { params })
+  const res = await request({method: 'get', url: '/api/mcp/list', params})
   // 假设响应数据在 res.data 中，将其返回
   return res.data
 }

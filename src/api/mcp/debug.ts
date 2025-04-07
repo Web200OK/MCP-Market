@@ -13,5 +13,5 @@ export interface DebugResult {
 }
 
 export const debugTool = (data: DebugParams) => {
-  return request.post<DebugResult>('/api/mcp/debug', data)
+  return request({method: 'post', url: '/api/mcp/debug', data }) as Promise<DebugResult>
 }

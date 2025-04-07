@@ -6,7 +6,7 @@ import request from '../request'
  * @returns Promise<any[]>
  */
 export const getMCPTools = async (id: string): Promise<[]> => {
-  const res = await request.get('/api/mcp/tools', { params: { id } })
+  const res = await request({method: 'get', url: '/api/mcp/tools', params: { id }})
   // 假设接口返回的数据在res.data中，返回res.data以匹配Promise<[]>类型
   return res.data;
 }

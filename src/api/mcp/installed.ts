@@ -6,6 +6,6 @@ import type { MCPItem } from '@/types/mcp'
  * @returns Promise<MCPItem[]>
  */
 export const getInstalledMCPList = async (): Promise<MCPItem[]> => {
-  const res = await request.get('/api/mcp/installed')
-  return res.data
+  const res = await request({ method: 'get', url: '/mcpserver/installedServer' })
+  return res
 }

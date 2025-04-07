@@ -2,7 +2,7 @@ import request from '@/api/request';
 
 export function getMCPStatus() {
   return request({
-    url: '/api/mcpserver/status',
+    url: '/mcpserver/status',
     method: 'get'
   });
 }
