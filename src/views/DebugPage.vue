@@ -85,7 +85,7 @@
                   <div class="tool-debug-form">
                     <el-form label-width="120px" label-position="top">
                       <el-form-item 
-                        v-for="param in selectedTool.params" 
+                        v-for="param in selectedTool.params"
                         :key="param.name"
                         :label="param.name"
                       >
@@ -129,26 +129,41 @@
 
 <script setup>
 // 导入Vue响应式API
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
 // 导入API方法
-import { getInstalledMCPList, getMCPTools, debugTool, getMCPStatus } from '@/api/mcp'
+import { getInstalledMCPList, debugTool, getMCPStatus } from '@/api/mcp'
 
 // 从mock接口获取服务器数据
 const servers = ref([])
+
+// 检测服务器状态
+const checkServerStatus = async () => {
+  try {
+    const status = await getMCPStatus()
+    serverStatus.value = status
+    showEmptyState.value = !status
+  } catch (error) {
+    console.error('检测服务器状态失败:', error)
+    showEmptyState.value = true
+  }
+}
+
+// 页面挂载时检测服务器状态
+checkServerStatus()
 
 // 获取服务器列表
 const fetchServers = async () => {
   try {
     const data = await getInstalledMCPList()
-    servers.value = data.map(item => ({
+    servers.value = data.servers.map(item => ({
       id: item.id.toString(),
       name: item.name,
       address: '',
       status: 'online',
       version: '',
       description: item.description,
-      tools: []
+      tools: item.tools
     }))
   } catch (error) {
     console.error('获取已安装服务器列表失败:', error)
@@ -162,23 +177,6 @@ fetchServers()
 const serverStatus = ref(false) // 服务器状态
 const showEmptyState = ref(false) // 是否显示空白状态
 
-// 检测服务器状态
-const checkServerStatus = async () => {
-  try {
-    const { data: status } = await getMCPStatus()
-    serverStatus.value = status
-    showEmptyState.value = !status
-  } catch (error) {
-    console.error('检测服务器状态失败:', error)
-    showEmptyState.value = true
-  }
-}
-
-// 页面挂载时检测服务器状态
-onMounted(() => {
-  checkServerStatus()
-})
-
 // 调试页面状态管理
 const currentServer = ref(null) // 当前选中的服务器
 const selectedTool = ref(null) // 当前选中的工具
@@ -191,48 +189,49 @@ const handleServerChange = async (server) => {
   currentServer.value = server // 更新当前服务器
   selectedTool.value = null // 重置选中工具
   debugResult.value = null // 清空调试结果
-  
-  try {
-    // 获取服务器工具列表
-    const data = await getMCPTools(server.id)
-    currentServer.value.tools = data
-  } catch (error) {
-    console.error('获取工具列表失败:', error)
-    currentServer.value.tools = []
-  }
+  currentServer.value.tools = server.tools || []
 }
 
 // 选择工具方法
 const selectTool = (tool) => {
   selectedTool.value = tool // 设置当前工具
   activeToolTab.value = 'debug' // 切换到调试标签页
+  // 转换inputSchema.properties为数组格式
+  if (tool.inputSchema?.properties) {
+    tool.params = Object.entries(tool.inputSchema.properties).map(([name, schema]) => ({
+      name,
+      type: schema.type,
+      title: schema.title || name,
+      value: ''
+    }))
+  } else {
+    tool.params = []
+  }
 }
 
 // 执行工具方法
-
-
 const executeTool = async () => {
   if (!selectedTool.value) {
     return
   }
   
   try {
-    const params = selectedTool.value.params.reduce((acc, param) => {
-      acc[param.name] = param.value
-      return acc
-    }, {})
-    
-    const { data } = await debugTool({
+    const requestData = {
+      id: currentServer.value.id,
       tool: selectedTool.value.name,
-      params
-    })
+      params: selectedTool.value.params.map(param => ({
+        name: param.name,
+        value: param.value
+      }))
+    }
     
+    const { data } = await debugTool(requestData)
     debugResult.value = JSON.stringify(data, null, 2)
   } catch (error) {
     console.error('调试失败:', error)
     debugResult.value = JSON.stringify({
       tool: selectedTool.value.name,
-      params: {},
+      params: [],
       result: '调试失败: ' + error.message,
       timestamp: new Date().toISOString()
     }, null, 2)
