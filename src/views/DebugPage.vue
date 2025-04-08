@@ -188,6 +188,7 @@ const handleServerChange = async (server) => {
   currentServer.value = server // 更新当前服务器
   selectedTool.value = null // 重置选中工具
   debugResult.value = null // 清空调试结果
+  activeToolTab.value = 'tools'
   currentServer.value.tools = server.tools || []
 }
 
@@ -227,16 +228,12 @@ const executeTool = async () => {
       }))
     }
     
-    const { data } = await debugTool(requestData)
-    debugResult.value = JSON.stringify(data, null, 2)
+    const { log } = await debugTool(requestData)
+    // 展示log中的内容
+    debugResult.value = JSON.parse(log)[0]?.text || log
   } catch (error) {
     console.error('调试失败:', error)
-    debugResult.value = JSON.stringify({
-      tool: selectedTool.value.name,
-      params: [],
-      result: '调试失败: ' + error.message,
-      timestamp: new Date().toISOString()
-    }, null, 2)
+    debugResult.value = '调试失败: ' + error.message
   } finally {
     isExecuting.value = false
   }
