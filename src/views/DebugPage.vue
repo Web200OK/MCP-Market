@@ -1,6 +1,6 @@
 <!-- MCP服务器调试页面模板 -->
 <template>
-  <div class="debug-page" style="height: 100%;">
+  <div class="debug-page" style="height: 100%;" v-loading="loading">
     <h2>MCP Server 调试工具</h2>
     <div v-if="showEmptyState" class="empty-state">
       <el-empty description="请先连接本地MCP Server服务" />
@@ -133,8 +133,22 @@ import { ref } from 'vue'
 // 导入API方法
 import { getInstalledMCPList, debugTool, getMCPStatus } from '@/api/mcp'
 
-// 从mock接口获取服务器数据
+// 加载状态
+const loading = ref(true)
+
+// 服务器数据
 const servers = ref([])
+
+// 检测服务器状态
+const serverStatus = ref(false) // 服务器状态
+const showEmptyState = ref(false) // 是否显示空白状态
+
+// 调试页面状态管理
+const currentServer = ref(null) // 当前选中的服务器
+const selectedTool = ref(null) // 当前选中的工具
+const activeToolTab = ref('tools') // 当前激活的标签页
+const debugResult = ref(null) // 调试结果
+const isExecuting = ref(false) // 执行状态
 
 // 检测服务器状态
 const checkServerStatus = async () => {
@@ -142,14 +156,14 @@ const checkServerStatus = async () => {
     const status = await getMCPStatus()
     serverStatus.value = status
     showEmptyState.value = !status
+    // 初始化时获取数据
+    fetchServers()
   } catch (error) {
     console.error('检测服务器状态失败:', error)
     showEmptyState.value = true
+    loading.value = false
   }
 }
-
-// 页面挂载时检测服务器状态
-checkServerStatus()
 
 // 获取服务器列表
 const fetchServers = async () => {
@@ -165,23 +179,13 @@ const fetchServers = async () => {
     }))
   } catch (error) {
     console.error('获取已安装服务器列表失败:', error)
+  } finally {
+    loading.value = false
   }
 }
 
-// 初始化时获取数据
-fetchServers()
-
-// 检测服务器状态
-const serverStatus = ref(false) // 服务器状态
-const showEmptyState = ref(false) // 是否显示空白状态
-
-// 调试页面状态管理
-const currentServer = ref(null) // 当前选中的服务器
-const selectedTool = ref(null) // 当前选中的工具
-const activeToolTab = ref('tools') // 当前激活的标签页
-const debugResult = ref(null) // 调试结果
-const isExecuting = ref(false) // 执行状态
-
+// 页面挂载时检测服务器状态
+checkServerStatus()
 
 // 处理服务器选择变化
 const handleServerChange = async (server) => {
