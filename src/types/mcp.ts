@@ -3,11 +3,9 @@ export interface MCPItem {
   name: string
   description: string
   category: string
-  icon: string
   rating: number
   downloads: number
   updatedAt: string
-  type?: string
   tags?: string[]
 }
 

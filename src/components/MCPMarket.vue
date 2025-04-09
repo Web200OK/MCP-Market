@@ -73,9 +73,6 @@
             class="service-card"
             @click="goToDetail(service.id)"
           >
-            <div v-if="service.type === 'official'" class="card-badge">
-              官方
-            </div>
             <h3 class="card-title">{{ service.name }}</h3>
             <div class="card-tags">
               <el-tag 
@@ -159,7 +156,6 @@ const fetchServices = async (category = '', search = '', signal?: AbortSignal) =
       ...item,
       id: item.id.toString(),
       isDownload: false,
-      type: item.type || 'official',
       description: item.description || '暂无描述',
       downloads: item.downloads || 0,
       rating: item.rating || 5.0
