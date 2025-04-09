@@ -4,6 +4,7 @@ import MCPDetail from '../components/MCPDetail.vue'
 import DebugPage from '../views/DebugPage.vue'
 import SubmitPage from '../views/SubmitPage.vue'
 import APIPage from '../views/APIPage.vue'
+import PermissionPage from '../views/PermissionPage.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -29,6 +30,12 @@ const routes: Array<RouteRecordRaw> = [
     name: 'api',
     component: APIPage,
     meta: { title: '应用程序API' }
+  },
+  {
+    path: '/permission',
+    name: 'permission',
+    component: PermissionPage,
+    meta: { title: '权限' }
   },
   {
     path: '/mcp-details/:id',
