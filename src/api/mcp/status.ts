@@ -1,8 +1,12 @@
 import request from '@/api/request';
+import axios from 'axios'
 
-export function getMCPStatus() {
-  return request({
+
+export async function getMCPStatus() {
+  const res = await request({
+    method: 'get',
     url: '/mcpserver/status',
-    method: 'get'
-  });
+    headers: new axios.AxiosHeaders(),
+  })
+  return res
 }

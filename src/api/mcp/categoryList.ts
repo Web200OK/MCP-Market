@@ -1,3 +1,4 @@
+import axios from 'axios'
 import request from '../request'
 
 type CategoryItem = {
@@ -12,7 +13,10 @@ type CategoryItem = {
  * @returns Promise<CategoryItem[]>
  */
 export const getCategoryList = async (): Promise<CategoryItem[]> => {
-  const res = await request({method: 'get', url: '/mcp/categoryList'})
-  // 假设接口返回的数据在res.data中，返回res.data以匹配Promise<CategoryItem[]>类型
-  return res;
+  const response = await request({
+    method: 'get',
+    url: '/mcp/categoryList',
+    headers: new axios.AxiosHeaders()
+  })
+  return response as unknown as CategoryItem[]
 }

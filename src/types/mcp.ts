@@ -1,5 +1,5 @@
 export interface MCPItem {
-  id: number
+  id: string
   name: string
   description: string
   category: string

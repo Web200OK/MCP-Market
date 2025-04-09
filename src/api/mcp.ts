@@ -1,6 +1,5 @@
 import { getMCPList } from './mcp/list'
 import { getMCPDetail } from './mcp/detail'
-import { getMCPTools } from './mcp/tools'
 import { getInstalledMCPList } from './mcp/installed'
 import { debugTool } from './mcp/debug'
 import { getMCPStatus } from './mcp/status'
@@ -50,7 +49,6 @@ export const getCategories = async (): Promise<string[]> => {
 export {
   getMCPList,
   getMCPDetail,
-  getMCPTools,
   getInstalledMCPList,
   debugTool,
   getMCPStatus,
