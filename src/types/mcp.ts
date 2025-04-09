@@ -23,3 +23,8 @@ export interface MCPDetail extends MCPItem {
   localInstallPath: string
   installType: string
 }
+
+export interface ClientItem {
+  id: string
+  name: string
+}

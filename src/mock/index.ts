@@ -64,12 +64,34 @@ const mcpDetails = Mock.mock({
   }]
 })
 
+const clientList = Mock.mock({
+  'list|3-5': [{
+    'id|+1': 1,
+    'name': '@ctitle(5, 10) Client',
+    'description': '@cparagraph(1, 3)',
+    'status|1': ['online', 'offline', 'maintenance'],
+    'version': '@natural(1, 5).@natural(0, 9).0',
+    'lastConnected': '@datetime'
+  }]
+})
+
 export default [
+  {
+    url: '/api/client/list',
+    method: 'get',
+    response: () => {
+      return {
+        code: 200,
+        data: clientList.list,
+        message: 'success'
+      }
+    }
+  },
   {
     url: '/api/mcp/installed',
     method: 'get',
     response: () => {
-      const installedList = mcpList.list.filter((item: MCPItem) => item.type === 'official')
+      const installedList = mcpList.list
       return {
         code: 200,
         data: installedList

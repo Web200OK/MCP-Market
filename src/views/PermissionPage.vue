@@ -45,31 +45,44 @@
 
 <script setup>
 import { ref, onMounted  } from 'vue'
-import { getInstalledMCPList } from '@/api/mcp/installed'
+import { getInstalledMCPList, getClientList } from '@/api/mcp'
 import { ElMessage } from 'element-plus'
 
 // 客户端列表数据
-const clientList = ref([
-  { id: 'mcp-web', name: 'MCP Web客户端' },
-  { id: 'mcp-mobile', name: 'MCP移动端' },
-  { id: 'mcp-desktop', name: 'MCP桌面版' },
-  { id: 'mcp-terminal', name: 'MCP终端版' },
-  { id: 'mcp-embedded', name: 'MCP嵌入式版' }
-])
+const clientList = ref([])
+
+// 获取客户端列表
+const fetchClientList = async () => {
+  try {
+    const res = await getClientList()
+    clientList.value = Array.isArray(res) ? res : []
+  } catch (error) {
+    console.error('获取客户端列表失败:', error)
+    ElMessage.error('获取客户端列表失败，请稍后重试')
+  }
+}
 
 // 服务器列表数据
 const serverList = ref([])
 const loading = ref(false)
+const permissionsMap = ref({}) // 存储各客户端的权限状态
 
 // 获取已安装服务器列表
 onMounted(async () => {
   loading.value = true
   try {
+    await fetchClientList()
     const res = await getInstalledMCPList()
     serverList.value = res.servers.map(item => ({
       ...item,
-      enabled: true
+      enabled: true,
+      clientId: item.clientId || 'global'
     }))
+    // 初始化权限映射
+    permissionsMap.value.global = {}
+    clientList.value.forEach(client => {
+      permissionsMap.value[client.id] = {}
+    })
   } catch (error) {
     console.error('获取已安装服务器列表失败:', error)
     ElMessage.error('获取服务器列表失败，请稍后重试')
@@ -84,12 +97,26 @@ const activeClient = ref('global')
 // 处理客户端选择
 const handleClientSelect = (index) => {
   activeClient.value = index
-  // TODO: 根据选中的客户端加载对应的服务器列表
+  // 根据选中的客户端过滤显示对应的服务器列表
+  if (index === 'global') {
+    serverList.value.forEach(server => {
+      server.enabled = permissionsMap.value.global[server.id] ?? true
+    })
+  } else {
+    serverList.value.forEach(server => {
+      server.enabled = permissionsMap.value[index][server.id] ?? (server.clientId === index)
+    })
+  }
 }
 
 // 处理权限变更
 const handlePermissionChange = (server) => {
-  // TODO: 保存权限设置
+  // 保存当前客户端的权限设置
+  if (activeClient.value === 'global') {
+    permissionsMap.value.global[server.id] = server.enabled
+  } else {
+    permissionsMap.value[activeClient.value][server.id] = server.enabled
+  }
   console.log(`服务器 ${server.name} 权限已${server.enabled ? '启用' : '禁用'}`)
 }
 </script>
@@ -105,17 +132,19 @@ const handlePermissionChange = (server) => {
 }
 
 .client-list {
-  width: 200px;
+  width: 280px;
   border-right: 1px solid #eee;
   padding-right: 20px;
+  min-height: 100%;
 }
 
 .server-permission {
   flex: 1;
-  padding-left: 20px;
-  /* background: #f8f8f8; */
+  padding-left: 30px;
+  padding-right: 30px;
   padding: 20px;
   border-radius: 16px 0 0 16px;
+  background: #f8f8f8;
 }
 
 .server-list {
