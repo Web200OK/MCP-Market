@@ -132,6 +132,7 @@ import { ref } from 'vue'
 
 // 导入API方法
 import { getInstalledMCPList, debugTool, getMCPStatus } from '@/api/mcp'
+import { ElMessage } from 'element-plus'
 
 // 加载状态
 const loading = ref(true)
@@ -179,6 +180,7 @@ const fetchServers = async () => {
     }))
   } catch (error) {
     console.error('获取已安装服务器列表失败:', error)
+    ElMessage.error('获取服务器列表失败: ' + error.message)
   } finally {
     loading.value = false
   }
@@ -248,7 +250,7 @@ const executeTool = async () => {
 <style scoped>
 .debug-page {
   padding: 20px;
-  background-color: #f2f2f7;
+  /* background-color: #f2f2f7; */
 }
 
 .debug-container {

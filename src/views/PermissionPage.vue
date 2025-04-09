@@ -1,5 +1,5 @@
 <template>
-  <div class="permission-container">
+  <div class="permission-container" v-loading="loading">
     <div class="permission-layout">
       <!-- 左侧客户端列表 -->
       <div class="client-list">
@@ -30,7 +30,7 @@
           >
             <div class="server-info">
               <span>{{ server.name }}</span>
-              <span>{{ server.version }}</span>
+              <el-tag size="small" type="info">{{ server.version }}</el-tag>
             </div>
             <el-switch 
               v-model="server.enabled" 
@@ -44,7 +44,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted  } from 'vue'
+import { getInstalledMCPList } from '@/api/mcp/installed'
+import { ElMessage } from 'element-plus'
 
 // 客户端列表数据
 const clientList = ref([
@@ -56,10 +58,25 @@ const clientList = ref([
 ])
 
 // 服务器列表数据
-const serverList = ref([
-  { id: 'server1', name: 'MCP Server 1', version: '1.0.0', enabled: true },
-  { id: 'server2', name: 'MCP Server 2', version: '1.2.0', enabled: false }
-])
+const serverList = ref([])
+const loading = ref(false)
+
+// 获取已安装服务器列表
+onMounted(async () => {
+  loading.value = true
+  try {
+    const res = await getInstalledMCPList()
+    serverList.value = res.servers.map(item => ({
+      ...item,
+      enabled: true
+    }))
+  } catch (error) {
+    console.error('获取已安装服务器列表失败:', error)
+    ElMessage.error('获取服务器列表失败，请稍后重试')
+  } finally {
+    loading.value = false
+  }
+})
 
 // 当前选中的客户端
 const activeClient = ref('global')
@@ -96,6 +113,9 @@ const handlePermissionChange = (server) => {
 .server-permission {
   flex: 1;
   padding-left: 20px;
+  /* background: #f8f8f8; */
+  padding: 20px;
+  border-radius: 16px 0 0 16px;
 }
 
 .server-list {
@@ -106,12 +126,23 @@ const handlePermissionChange = (server) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.server-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .server-info {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 </style>
