@@ -8,6 +8,8 @@
 - 新服务器提交功能
 - API调试工具
 - 服务器调试工具
+- 权限管理功能
+- 服务器事件推送(SSE)
 - 响应式设计
 
 ## 🛠 技术栈
@@ -43,10 +45,20 @@ npm run build
 ```
 src/
 ├── api/            # API接口封装
-│   ├── mcp.ts      # MCP相关API
+│   ├── mcp.ts      # MCP主接口
 │   ├── request.ts  # 请求封装
+│   └── mcp/        # MCP相关API
+│       ├── categoryList.ts  # 分类接口
+│       ├── debug.ts         # 调试接口
+│       ├── detail.ts        # 详情接口
+│       ├── install.ts       # 安装接口
+│       ├── installed.ts     # 已安装服务接口
+│       ├── list.ts          # 列表接口
+│       ├── status.ts        # 状态接口
+│       └── tools.ts         # 工具接口
 ├── assets/         # 静态资源
 │   ├── global.css  # 全局样式
+│   ├── vue.svg
 │   └── logos/      # 项目logo
 ├── components/     # 公共组件
 │   ├── MarketHeader.vue  # 顶部导航
@@ -63,6 +75,7 @@ src/
 └── views/          # 页面组件
     ├── APIPage.vue   # API文档页
     ├── DebugPage.vue # 调试工具页
+    ├── PermissionPage.vue # 权限管理页
     └── SubmitPage.vue # 提交页
 ```
 
@@ -71,7 +84,15 @@ src/
 ### 服务器相关
 - `getMCPList(params)`: 获取MCP服务器列表
   - 参数: `{ category?: string, search?: string, page?: number, size?: number }`
-  - 返回: `Promise<MCPItem[]>`
+  - 返回: `Promise<MCPItem[]>
+
+### 事件推送
+- `/mcpserver/webEvent`: 服务器事件推送接口(SSE)
+  - 事件类型: 
+    - `info`: 普通信息通知
+    - `warn`: 警告信息
+    - `error`: 错误信息
+  - 数据格式: `{ type: string, title: string, message: string }`
 
 - `getMCPDetail(id)`: 获取MCP服务器详情
   - 参数: `id: number`
