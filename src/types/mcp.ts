@@ -12,7 +12,7 @@ export interface MCPItem {
 }
 
 export interface MCPDetail extends MCPItem {
-  artifactId: string
+  id: string
   name: string
   version: string
   description: string

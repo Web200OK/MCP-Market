@@ -7,7 +7,8 @@ import type { MCPDetail } from '@/types/mcp'
  * @returns Promise<MCPDetail>
  */
 export const getMCPDetail = async (id: number): Promise<MCPDetail> => {
-  const res = await request({method: 'post', url: '/api/mcp/detail', data: id })
+  const res = await request({method: 'get', url: '/mcp/detail', params: { id } })
   // 假设响应数据在 res.data 中
-  return res.data as MCPDetail;
+  // 假设响应数据在 res.data 中，修改为从 res.data 取数据
+  return res;
 }

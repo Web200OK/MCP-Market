@@ -12,13 +12,13 @@
               <el-card shadow="hover">
                 <h3 class="info-title">基本信息</h3>
                 <el-descriptions :column="1" border>
-                  <el-descriptions-item label="Artifact ID">{{ server.artifactId }}</el-descriptions-item>
+                  <el-descriptions-item label="ID">{{ server.id }}</el-descriptions-item>
                   <el-descriptions-item label="名称">{{ server.name }}</el-descriptions-item>
                   <el-descriptions-item label="版本">{{ server.version }}</el-descriptions-item>
                   <el-descriptions-item label="运行类型">{{ server.runType }}</el-descriptions-item>
-                  <el-descriptions-item label="安装类型">{{ server.installType }}</el-descriptions-item>
-                  <el-descriptions-item label="本地路径">{{ server.localInstallPath }}</el-descriptions-item>
-                  <el-descriptions-item label="URL">{{ server.url }}</el-descriptions-item>
+                  <el-descriptions-item label="安装类型">{{ server.installType || '-'}}</el-descriptions-item>
+                  <el-descriptions-item label="本地路径">{{ server.localInstallPath || '-'}}</el-descriptions-item>
+                  <el-descriptions-item label="URL">{{ server.url || '-'}}</el-descriptions-item>
                 </el-descriptions>
               </el-card>
             </el-col>
@@ -26,8 +26,11 @@
               <el-card shadow="hover">
                 <h3 class="info-title">运行配置</h3>
                 <el-descriptions :column="1" border>
-                  <el-descriptions-item label="启动命令">{{ server.command }}</el-descriptions-item>
+                  <el-descriptions-item label="启动命令">{{ server.command || '-'}}</el-descriptions-item>
                   <el-descriptions-item label="命令参数">
+                    <template v-if="!server.commandParam">
+                      <span class="empty-text">-</span>
+                    </template>
                     <el-tag v-for="(param, index) in server.commandParam" :key="index" style="margin-right: 5px;">
                       {{ param }}
                     </el-tag>
@@ -41,13 +44,20 @@
               <el-card shadow="hover">
                 <h3 class="info-title">环境依赖</h3>
                 <el-descriptions :column="1" border>
-                  <el-descriptions-item 
-                    v-for="(value, key) in server.envDependency" 
-                    :key="key" 
-                    :label="key"
-                  >
-                    {{ value }}
-                  </el-descriptions-item>
+                  <template v-if="server.envDependency">
+                    <el-descriptions-item 
+                      v-for="(value, key) in server.envDependency" 
+                      :key="key" 
+                      :label="key"
+                    >
+                      {{ value }}
+                    </el-descriptions-item>
+                  </template>
+                  <template v-else>
+                    <el-descriptions-item>
+                      -
+                    </el-descriptions-item>
+                  </template>
                 </el-descriptions>
               </el-card>
             </el-col>
@@ -55,13 +65,20 @@
               <el-card shadow="hover">
                 <h3 class="info-title">环境参数</h3>
                 <el-descriptions :column="1" border>
-                  <el-descriptions-item 
-                    v-for="(value, key) in server.envParam" 
-                    :key="key" 
-                    :label="key"
-                  >
-                    {{ value }}
-                  </el-descriptions-item>
+                  <template v-if="server.envParam">
+                    <el-descriptions-item 
+                      v-for="(value, key) in server.envParam" 
+                      :key="key" 
+                      :label="key"
+                    >
+                      {{ value }}
+                    </el-descriptions-item>
+                  </template>
+                  <template v-else>
+                    <el-descriptions-item>
+                      -
+                    </el-descriptions-item>
+                  </template>
                 </el-descriptions>
               </el-card>
             </el-col>
