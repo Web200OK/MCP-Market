@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
 import MarketHeader from '@/components/MarketHeader.vue'
+import { ElMessage } from 'element-plus'
+import { onMounted, onUnmounted, ref } from "vue"
 
 declare global {
   interface DocumentEventMap {
@@ -10,6 +12,9 @@ declare global {
 
 const route = useRoute()
 
+const sseData = ref<any>(null)
+const eventSource = ref<EventSource | null>(null)
+
 const handleSearch = (query: string) => {
   // 将搜索查询传递给当前路由组件
   if (route.path === '/') {
@@ -17,6 +22,51 @@ const handleSearch = (query: string) => {
     document.dispatchEvent(new CustomEvent('mcp-search', { detail: query }))
   }
 }
+
+const initSSE = () => {
+  eventSource.value = new EventSource('/mcpserver/webEvent')
+  
+  eventSource.value.onmessage = (event: any) => {
+    const data = JSON.parse(event.data)
+    sseData.value = data
+    
+    switch(data.type) {
+      case 'info':
+        ElMessage({
+          message: `${data.title}: ${data.message}`,
+          type: 'info'
+        })
+        break
+      case 'warn':
+        ElMessage({
+          message: `${data.title}: ${data.message}`,
+          type: 'warning'
+        })
+        break
+      case 'error':
+        ElMessage({
+          message: `${data.title}: ${data.message}`,
+          type: 'error'
+        })
+        break
+      default:
+        ElMessage.success('收到后端推送数据')
+    }
+  }
+  
+  eventSource.value.onerror = () => {
+    ElMessage.error('SSE连接错误')
+    eventSource.value?.close()
+  }
+}
+
+onMounted(() => {
+  initSSE()
+})
+
+onUnmounted(() => {
+  eventSource.value?.close()
+})
 </script>
 
 <template>
