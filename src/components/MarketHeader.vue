@@ -39,7 +39,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>个人中心</el-dropdown-item>
+              <el-dropdown-item @click="showConfigDialog = true">程序配置</el-dropdown-item>
               <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -68,6 +68,38 @@
           <el-button type="primary" @click="handleLogin">登录</el-button>
         </template>
       </el-dialog>
+
+    <el-dialog
+      v-model="showConfigDialog"
+      title="程序配置"
+      width="600px"
+    >
+      <el-alert
+        title="配置说明"
+        type="info"
+        description="请配置以下程序路径，这些路径将用于MCP Server安装时匹配对应的程序。您可以选择手动输入路径，或点击下载按钮自动下载并安装最新版本的程序。"
+        show-icon
+        style="margin-bottom: 20px"
+      />
+      <el-form 
+        :model="programConfig"
+        label-width="120px"
+        label-position="right"
+      >
+        <el-form-item label="Node.js路径">
+          <el-input v-model="programConfig.nodePath" placeholder="C:\\Program Files\\nodejs\\node.exe" style="width: 300px" />
+          <el-button type="primary" style="margin-left: 10px" @click="downloadProgram('node')">下载</el-button>
+        </el-form-item>
+        <el-form-item label="Python路径">
+          <el-input v-model="programConfig.pythonPath" placeholder="C:\\Users\\用户名\\AppData\\Local\\Programs\\Python\\Python版本号\\python.exe" style="width: 300px" />
+          <el-button type="primary" style="margin-left: 10px" @click="downloadProgram('python')">下载</el-button>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showConfigDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleSaveConfig">保存</el-button>
+      </template>
+    </el-dialog>
     </div>
 
   <div class="search-section" v-if="isHomePage">
@@ -97,6 +129,7 @@ import { ref, computed } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
+import { ElMessage, ElLoading } from 'element-plus'
 // 定义组件事件
 const emit = defineEmits(['search']) // 搜索事件
 
@@ -108,6 +141,7 @@ const isAuthenticated = computed(() => store.state.isAuthenticated) // 是否已
 
 // 登录相关状态
 const showLoginDialog = ref(false) // 是否显示登录对话框
+const showConfigDialog = ref(false) // 是否显示配置对话框
 const loginForm = ref({ // 登录表单数据
   username: '',
   password: ''
@@ -125,12 +159,52 @@ const handleLogout = () => {
   store.dispatch('logout')
 }
 
+const handleSaveConfig = () => {
+  // TODO: 保存配置到Vuex store
+  showConfigDialog.value = false
+}
+
+const downloadProgram = async (type) => {
+  try {
+    const loading = ElLoading.service({
+      lock: true,
+      text: '正在下载并安装程序...',
+      background: 'rgba(0, 0, 0, 0.7)'
+    })
+    
+    // TODO: 实现下载逻辑
+    // 模拟下载过程
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    // 根据类型设置默认路径
+    switch(type) {
+      case 'node':
+        programConfig.value.nodePath = 'C:\\Program Files\\nodejs\\node.exe'
+        break
+      case 'python':
+        programConfig.value.pythonPath = 'C:\\Users\\${username}\\AppData\\Local\\Programs\\Python\\Python-latest\\python.exe'
+        break
+    }
+    
+    loading.close()
+    ElMessage.success(`${type}程序下载并安装成功！`)
+  } catch (err) {
+    ElMessage.error(`下载失败: ${err.message}`)
+  }
+}
+
+const programConfig = ref({
+  nodePath: '',
+  pythonPath: ''
+})
+
 // 导航数据
 const mainNavItems = ref([
   { name: '首页', route: '/' },
   { name: '调试', route: '/debug' }, 
-  { name: '提交', route: '/submit' },
-  { name: '应用程序API', route: '/api' }
+  // { name: '提交', route: '/submit' },
+  // { name: '应用程序API', route: '/api' },
+  { name: '权限', route: '/permission' }
 ])
 
 // 搜索和过滤

@@ -6,6 +6,6 @@ import request from '../request'
  * @returns Promise<void>
  */
 export const installMCP = async (id: string): Promise<void> => {
-  const res = await request({ method: 'post', url: '/mcpserver/install', data: id })
+  const res = await request({ method: 'get', url: '/mcpserver/install', params: { id } })
   return res
 }
