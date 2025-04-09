@@ -124,7 +124,7 @@ const props = defineProps<{
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getMCPList, getCategories, installMCP } from '@/api/mcp'
+import { getMCPList, getCategoryList, installMCP } from '@/api/mcp'
 import type { MCPItem } from '@/types/mcp'
 
 interface ServiceItem extends Omit<MCPItem, 'id'> {
@@ -180,9 +180,10 @@ function handleExternalSearch(e: Event) {
 }
 
 onMounted(async () => {
-  await fetchServices()
+  fetchServices()
   // 获取分类列表
-  categories.value = await getCategories()
+  const categoryList = await getCategoryList()
+  categories.value = categoryList.map(item => item.categoryName)
   
   document.addEventListener('mcp-search', handleExternalSearch as EventListener)
 })
