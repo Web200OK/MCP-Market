@@ -3,7 +3,7 @@
     <div class="permission-layout">
       <!-- 左侧客户端列表 -->
       <div class="client-list">
-        <h3>服务器权限设置</h3>
+        <h3>Client权限设置</h3>
         <el-menu 
           :default-active="activeClient" 
           @select="handleClientSelect"
@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, onMounted  } from 'vue'
-import { getInstalledMCPList, getClientList } from '@/api/mcp'
+import { getClientList, getInstalledMCPByClient } from '@/api/mcp'
 import { ElMessage } from 'element-plus'
 
 // 客户端列表数据
@@ -72,11 +72,13 @@ onMounted(async () => {
   loading.value = true
   try {
     await fetchClientList()
-    const res = await getInstalledMCPList()
-    serverList.value = res.servers.map(item => ({
-      ...item,
-      enabled: true,
-      clientId: item.clientId || 'global'
+    const res = await getInstalledMCPByClient(activeClient.value)
+    serverList.value = res.map(item => ({
+      id: item.id,
+      name: item.name,
+      enabled: item.enabled,
+      version: item.version,
+      clientId: activeClient.value
     }))
     // 初始化权限映射
     permissionsMap.value.global = {}
@@ -144,7 +146,6 @@ const handlePermissionChange = (server) => {
   padding-right: 30px;
   padding: 20px;
   border-radius: 16px 0 0 16px;
-  background: #f8f8f8;
 }
 
 .server-list {

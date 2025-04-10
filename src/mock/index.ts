@@ -99,6 +99,26 @@ export default [
     }
   },
   {
+    url: '/api/mcp/installed-by-client',
+    method: 'get',
+    response: (req) => {
+      const { clientId } = req.query
+      const mockServers = Mock.mock({
+        'list|5-10': [{
+          'id|+1': 1,
+          'name': '@ctitle(5, 10) Server',
+          'version': '@natural(1, 5).@natural(0, 9).0',
+          'enabled|1': [true, false]
+        }]
+      })
+      return {
+        code: 200,
+        data: mockServers.list,
+        message: 'success'
+      }
+    }
+  },
+  {
     url: '/api/mcp/installed-servers',
     method: 'get',
     response: () => {
