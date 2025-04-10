@@ -69,16 +69,23 @@
 
           <!-- 工具列表和调试区 -->
           <div class="tool-debug" v-if="currentServer">
-            
-            <el-tabs v-model="activeToolTab">
-              <el-tab-pane label="工具列表" name="tools" >
+            <div class="tool-list-container">
+              <el-card>
+                <template #header>
+                  <div class="card-header">工具列表</div>
+                </template>
                 <el-table :data="currentServer.tools" @row-click="selectTool">
                   <el-table-column prop="name" label="工具名称" />
                   <el-table-column prop="description" label="描述" />
                 </el-table>
-              </el-tab-pane>
-              
-              <el-tab-pane label="调试" name="debug" :disabled="!selectedTool || isExecuting">
+              </el-card>
+            </div>
+            
+            <div class="debug-area-container">
+              <el-card>
+                <template #header>
+                  <div class="card-header">调试工具</div>
+                </template>
                 <div v-if="selectedTool" class="tool-debug-area">
                   <h3>调试工具: {{ selectedTool.name }}</h3>
                   <div class="tool-debug-form">
@@ -117,8 +124,11 @@
                     <pre v-highlight><code class="language-json">{{ debugResult }}</code></pre>
                   </el-card>
                 </div>
-              </el-tab-pane>
-            </el-tabs>
+                <div v-else class="empty-tool-state">
+                  <el-empty description="请从左侧工具列表中选择一个工具" />
+                </div>
+              </el-card>
+            </div>
           </div>
         </el-card>
       </div>
@@ -271,6 +281,22 @@ const executeTool = async () => {
 
 .debug-area {
   flex: 1;
+}
+
+.tool-debug {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  height: calc(100vh - 300px);
+  overflow-y: auto;
+}
+
+.tool-list-container,
+.debug-area-container {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .el-card {
