@@ -7,8 +7,8 @@ import { installMCP } from './mcp/install'
 import { getCategoryList } from './mcp/categoryList'
 import { getClientList } from './mcp/client'
 import { getInstalledMCPByClient } from './mcp/installedByClient'
+import { updateServerPermission } from './mcp/updatePermission'
 import axios from 'axios'
-import type { MCPItem, MCPDetail } from '@/types/mcp'
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/',
@@ -57,5 +57,6 @@ export {
   installMCP,
   getCategoryList,
   getClientList,
-  getInstalledMCPByClient
+  getInstalledMCPByClient,
+  updateServerPermission
 }

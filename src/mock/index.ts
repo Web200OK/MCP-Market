@@ -99,6 +99,18 @@ export default [
     }
   },
   {
+    url: '/api/mcp/updatePermission',
+    method: 'post',
+    response: (req) => {
+      const { clientId, serverId, enabled } = req.body
+      return {
+        code: 200,
+        data: { clientId, serverId, enabled },
+        message: '权限更新成功'
+      }
+    }
+  },
+  {
     url: '/api/mcp/installed-by-client',
     method: 'get',
     response: (req) => {

@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, onMounted  } from 'vue'
-import { getClientList, getInstalledMCPByClient } from '@/api/mcp'
+import { getClientList, getInstalledMCPByClient, updateServerPermission } from '@/api/mcp'
 import { ElMessage } from 'element-plus'
 
 // 客户端列表数据
@@ -112,7 +112,7 @@ const handleClientSelect = (index) => {
 }
 
 // 处理权限变更
-const handlePermissionChange = (server) => {
+const handlePermissionChange = async (server) => {
   // 保存当前客户端的权限设置
   if (activeClient.value === 'global') {
     permissionsMap.value.global[server.id] = server.enabled
@@ -120,6 +120,20 @@ const handlePermissionChange = (server) => {
     permissionsMap.value[activeClient.value][server.id] = server.enabled
   }
   console.log(`服务器 ${server.name} 权限已${server.enabled ? '启用' : '禁用'}`)
+  
+  try {
+    await updateServerPermission({
+      clientId: activeClient.value,
+      serverId: server.id,
+      enabled: server.enabled
+    })
+    ElMessage.success(`服务器 ${server.name} 权限已${server.enabled ? '启用' : '禁用'}`)
+  } catch (error) {
+    console.error('保存权限状态失败:', error)
+    ElMessage.error('保存权限状态失败，请稍后重试')
+    // 恢复之前的状态
+    server.enabled = !server.enabled
+  }
 }
 </script>
 
