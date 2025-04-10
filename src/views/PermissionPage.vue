@@ -116,7 +116,21 @@ const handleClientSelect = async (index) => {
 
 // 处理权限变更
 const handlePermissionChange = async (server) => {
-  
+  try {
+    const res = await updateServerPermission({
+      proxyId: activeClient.value,
+      key: server.key,
+      status: server.status
+    })
+    if (res.success) {
+      ElMessage.success('权限更新成功')
+    } else {
+      ElMessage.error(res.message || '权限更新失败')
+    }
+  } catch (error) {
+    console.error('更新权限失败:', error)
+    ElMessage.error('更新权限失败，请稍后重试')
+  }
 }
 </script>
 

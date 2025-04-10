@@ -1,30 +1,31 @@
-import request from '../request'
-import axios from 'axios'
+import request from "../request";
+import axios from "axios";
 
 /**
  * 更新服务器权限
- * @param clientId 客户端ID
- * @param serverId 服务器ID
- * @param enabled 是否启用
+ * @param proxyId 客户端ID
+ * @param key 服务器标识
+ * @param status 是否启用
  * @returns Promise<void>
  */
 export const updateServerPermission = async ({
-  clientId,
-  serverId,
-  enabled
+  proxyId,
+  key,
+  status,
 }: {
-  clientId: string
-  serverId: string
-  enabled: boolean
+  proxyId: string;
+  key: string;
+  status: boolean;
 }): Promise<void> => {
-  await request({
-    method: 'post',
-    url: '/api/mcp/updatePermission',
-    data: {
-      clientId,
-      serverId,
-      enabled
+  const res = await request({
+    method: "get",
+    url: "/clientmanager/updateStatus",
+    params: {
+      proxyId,
+      key,
+      status,
     },
-    headers: new axios.AxiosHeaders()
-  })
-}
+    headers: new axios.AxiosHeaders(),
+  });
+  return res;
+};
