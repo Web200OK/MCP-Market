@@ -73,7 +73,11 @@ onUnmounted(() => {
   <div class="app-container">
     <MarketHeader @search="handleSearch" />
     <main class="app-content">
-      <RouterView @search="handleSearch" />
+      <router-view v-slot="{ Component }">
+        <keep-alive :include="['DebugPage', 'APIPage', 'SubmitPage', 'PermissionPage', 'MCPMarket']">
+          <component :is="Component" @search="handleSearch" />
+        </keep-alive>
+      </router-view>
     </main>
   </div>
 </template>

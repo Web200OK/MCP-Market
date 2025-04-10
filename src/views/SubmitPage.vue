@@ -88,11 +88,17 @@ x<template>
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  name: 'SubmitPage'
+}
+</script>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElForm } from 'element-plus'
 import type { FormInstance, FormRules } from 'element-plus'
-import { submitMCP, getCategories } from '@/api/mcp'
+import { submitMCP, getCategoryList } from '@/api/mcp'
 
 interface FormData {
   name: string
@@ -108,12 +114,17 @@ const categories = ref<string[]>([])
 const commonTags = ref<string[]>(['AI', '工具', 'API', '数据', '分析'])
 
 onMounted(async () => {
+  await fetchCategories()
+})
+
+async function fetchCategories() {
   try {
-    categories.value = await getCategories()
+    const categoryList = await getCategoryList()
+    categories.value = categoryList.map(item => item.categoryName)
   } catch (error) {
     console.error('Failed to fetch categories:', error)
   }
-})
+}
 
 const form = ref<FormData>({
   name: '',

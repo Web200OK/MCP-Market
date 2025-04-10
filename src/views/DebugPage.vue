@@ -126,6 +126,12 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: 'DebugPage'
+}
+</script>
+
 <script setup>
 // 导入Vue响应式API
 import { ref } from 'vue'

@@ -36,6 +36,12 @@
   </div>
 </template>
 
+<script>
+export default {
+  name: 'APIPage'
+}
+</script>
+
 <script setup>
 // 这里可以添加API调用逻辑
 // 这里可以添加API调用逻辑
