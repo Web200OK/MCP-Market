@@ -5,7 +5,7 @@ import { debugTool } from './mcp/debug'
 import { getMCPStatus } from './mcp/status'
 import { installMCP } from './mcp/install'
 import { getCategoryList } from './mcp/categoryList'
-import { getClientList } from './mcp/client'
+import { getClientList, deleteClient } from './mcp/client'
 import { getInstalledMCPByClient } from './mcp/installedByClient'
 import { updateServerPermission } from './mcp/updatePermission'
 import axios from 'axios'
@@ -58,5 +58,6 @@ export {
   getCategoryList,
   getClientList,
   getInstalledMCPByClient,
-  updateServerPermission
+  updateServerPermission,
+  deleteClient
 }

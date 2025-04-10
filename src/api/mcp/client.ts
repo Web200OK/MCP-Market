@@ -10,3 +10,13 @@ export const getClientList = async () => {
     });
     return res.data as unknown as Promise<ClientItem[]>;
 }
+
+export const deleteClient = async (id: string) => {
+    const res = await request({
+        method: 'get',
+        url: `clientmanager/deleteById`,
+        headers: new axios.AxiosHeaders(),
+        params: { id }
+    });
+    return res;
+}

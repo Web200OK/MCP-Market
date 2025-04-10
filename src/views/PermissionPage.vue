@@ -14,6 +14,14 @@
             :index="client.id"
           >
             {{ client.name }}
+            <el-button 
+              type="danger" 
+              size="small" 
+              @click.stop="handleDeleteClient(client.id)"
+              style="margin-left: 10px"
+            >
+              删除
+            </el-button>
           </el-menu-item>
         </el-menu>
       </div>
@@ -43,7 +51,7 @@
 
 <script setup>
 import { ref, onMounted  } from 'vue'
-import { getClientList, getInstalledMCPByClient, updateServerPermission } from '@/api/mcp'
+import { getClientList, getInstalledMCPByClient, updateServerPermission, deleteClient } from '@/api/mcp'
 import { ElMessage } from 'element-plus'
 
 // 客户端列表数据
@@ -130,6 +138,37 @@ const handlePermissionChange = async (server) => {
   } catch (error) {
     console.error('更新权限失败:', error)
     ElMessage.error('更新权限失败，请稍后重试')
+  }
+}
+
+// 处理删除客户端
+const handleDeleteClient = async (clientId) => {
+  loading.value = true
+  try {
+    const res = await deleteClient(clientId)
+    if (res === 1) {
+      ElMessage.success(res.message || '客户端删除成功')
+      await fetchClientList()
+      // 处理删除后的状态
+      if (clientList.value.length === 0) {
+        activeClient.value = ''
+        serverList.value = []
+      } else if (activeClient.value === clientId) {
+        // 如果删除的是当前选中的客户端，重置选中状态并更新服务器列表
+        activeClient.value = clientList.value[0].id
+        const serverRes = await getInstalledMCPByClient(activeClient.value)
+        serverList.value = serverRes.map(item => ({
+          key: item.key,
+          name: item.name,
+          status: item.status,
+        }))
+      }
+    } 
+  } catch (error) {
+    console.error('删除客户端失败:', error)
+    ElMessage.error('删除客户端失败，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
 </script>
