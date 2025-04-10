@@ -8,7 +8,6 @@
           :default-active="activeClient" 
           @select="handleClientSelect"
         >
-          <el-menu-item index="global">全局权限</el-menu-item>
           <el-menu-item 
             v-for="client in clientList" 
             :key="client.id" 
@@ -25,15 +24,14 @@
         <div class="server-list">
           <div 
             v-for="server in serverList" 
-            :key="server.id" 
+            :key="server.key" 
             class="server-item"
           >
             <div class="server-info">
               <span>{{ server.name }}</span>
-              <el-tag size="small" type="info">{{ server.version }}</el-tag>
             </div>
             <el-switch 
-              v-model="server.enabled" 
+              v-model="server.status" 
               @change="handlePermissionChange(server)"
             />
           </div>
@@ -56,6 +54,10 @@ const fetchClientList = async () => {
   try {
     const res = await getClientList()
     clientList.value = Array.isArray(res) ? res : []
+    // 设置第一个客户端为默认选中
+    if (clientList.value.length > 0) {
+      activeClient.value = clientList.value[0].id
+    }
   } catch (error) {
     console.error('获取客户端列表失败:', error)
     ElMessage.error('获取客户端列表失败，请稍后重试')
@@ -67,18 +69,15 @@ const serverList = ref([])
 const loading = ref(false)
 const permissionsMap = ref({}) // 存储各客户端的权限状态
 
-// 获取已安装服务器列表
 onMounted(async () => {
   loading.value = true
   try {
     await fetchClientList()
     const res = await getInstalledMCPByClient(activeClient.value)
     serverList.value = res.map(item => ({
-      id: item.id,
+      key: item.key,
       name: item.name,
-      enabled: item.enabled,
-      version: item.version,
-      clientId: activeClient.value
+      status: item.status,
     }))
     // 初始化权限映射
     permissionsMap.value.global = {}
@@ -94,46 +93,30 @@ onMounted(async () => {
 })
 
 // 当前选中的客户端
-const activeClient = ref('global')
+const activeClient = ref('')
 
 // 处理客户端选择
-const handleClientSelect = (index) => {
+const handleClientSelect = async (index) => {
   activeClient.value = index
-  // 根据选中的客户端过滤显示对应的服务器列表
-  if (index === 'global') {
-    serverList.value.forEach(server => {
-      server.enabled = permissionsMap.value.global[server.id] ?? true
-    })
-  } else {
-    serverList.value.forEach(server => {
-      server.enabled = permissionsMap.value[index][server.id] ?? (server.clientId === index)
-    })
+  loading.value = true
+  try {
+    const res = await getInstalledMCPByClient(index)
+    serverList.value = res.map(item => ({
+      key: item.key,
+      name: item.name,
+      status: item.status,
+    }))
+  } catch (error) {
+    console.error('获取服务器列表失败:', error)
+    ElMessage.error('获取服务器列表失败，请稍后重试')
+  } finally {
+    loading.value = false
   }
 }
 
 // 处理权限变更
 const handlePermissionChange = async (server) => {
-  // 保存当前客户端的权限设置
-  if (activeClient.value === 'global') {
-    permissionsMap.value.global[server.id] = server.enabled
-  } else {
-    permissionsMap.value[activeClient.value][server.id] = server.enabled
-  }
-  console.log(`服务器 ${server.name} 权限已${server.enabled ? '启用' : '禁用'}`)
   
-  try {
-    await updateServerPermission({
-      clientId: activeClient.value,
-      serverId: server.id,
-      enabled: server.enabled
-    })
-    ElMessage.success(`服务器 ${server.name} 权限已${server.enabled ? '启用' : '禁用'}`)
-  } catch (error) {
-    console.error('保存权限状态失败:', error)
-    ElMessage.error('保存权限状态失败，请稍后重试')
-    // 恢复之前的状态
-    server.enabled = !server.enabled
-  }
 }
 </script>
 

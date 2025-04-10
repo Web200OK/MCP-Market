@@ -1,10 +1,10 @@
 import request from '../request'
 
-export const getInstalledMCPByClient = async (clientId: string) => {
+export const getInstalledMCPByClient = async (proxyId: string) => {
   const res = await request({
     method: 'get',
-    url: '/api/mcp/installed-by-client',
-    params: { clientId }
+    url: '/clientmanager/listProxyAuthMcp',
+    params: { proxyId }
   })
   return res.data
 }

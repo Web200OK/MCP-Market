@@ -5,7 +5,7 @@ import { ClientItem } from '@/types/mcp'
 export const getClientList = async () => {
     const res = await request({
         method: 'get',
-        url: '/api/client/list',
+        url: 'clientmanager/queryClientList',
         headers: new axios.AxiosHeaders(),
     });
     return res.data as unknown as Promise<ClientItem[]>;
