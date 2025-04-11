@@ -49,7 +49,7 @@
       
       <template #footer>
         <el-button @click="resetForm">取消</el-button>
-        <el-button type="primary" @click="confirmInstall">确认安装</el-button>
+        <el-button type="primary" @click="confirmInstall" :loading="isInstalling">确认安装</el-button>
       </template>
     </el-dialog>
 
@@ -255,6 +255,7 @@ async function filterByCategory(category: string) {
 
 const installingId = ref<string>('') // 当前正在安装的服务ID
 const showInstallDialog = ref(false) // 控制安装对话框显示
+const isInstalling = ref(false) // 安装状态
 
 const argExtList = ref<string[]>([])
 const argExtLabel = ref('')
@@ -308,8 +309,10 @@ async function handleInstall(service: ServiceItem) {
       const res = await installMCP(service.id)
       if(res.status === 'installed') {
         service.isDownload = true
+        installingId.value = ''
         ElMessage.success(`${service.name} 安装成功`)
       }else {
+        installingId.value = ''
         ElMessage.error('安装失败，请稍后重试')
       }
     }
@@ -328,6 +331,7 @@ const resetForm = () => {
 };
 
 const confirmInstall = async () => {
+  isInstalling.value = true;
   try {
     const res = await installMCP(installingId.value, argExtList.value, envExtList.value);
     
@@ -342,6 +346,7 @@ const confirmInstall = async () => {
     console.error('安装失败:', err);
     ElMessage.error('安装失败，请稍后重试');
   } finally {
+    isInstalling.value = false;
     resetForm();
   }
 };
@@ -617,14 +622,21 @@ async function handleSearch() {
   }
 
   .card-title {
-    margin: 0 0 12px;
+    margin: 0 0 8px;
     font-size: 16px;
     font-weight: 700;
     color: #1C1C1E;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 40px;
   }
 
   .card-tags {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
@@ -637,11 +649,17 @@ async function handleSearch() {
   }
 
   .card-desc {
-    height: 60px;
     margin: 0;
     font-size: 13px;
     line-height: 1.4;
     color: #636366;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 54px;
+    margin-bottom: 8px;
   }
 
   .card-footer {
