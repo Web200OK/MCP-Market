@@ -6,12 +6,12 @@ import axios from 'axios'
  * @param id 服务器ID
  * @returns Promise<any>
  */
-export const installMCP = async (id: string) => {
+export const installMCP = async (id: string, argExtList?: string[], envExtList?: Record<string, string>) => {
   const res = await request({
-    method: 'get',
+    method: 'post',
     url: '/mcpserver/install',
-    params: { id },
-    headers: new axios.AxiosHeaders(),
+    data: { id, argExtList, envExtList },
+    headers: new axios.AxiosHeaders({'Content-Type': 'application/json'}),
   })
   return res
 }

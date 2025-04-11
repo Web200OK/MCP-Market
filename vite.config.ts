@@ -4,6 +4,7 @@ import { viteMockServe } from 'vite-plugin-mock'
 import path from 'path'
 
 export default defineConfig({
+  base:'/mcp-market/',
   plugins: [
     vue(),
     viteMockServe({
@@ -14,7 +15,17 @@ export default defineConfig({
   server: {
     proxy: {
       '/mcpserver': {
-        target: 'https://507b54208199ccfbab592f0700d19038.serveo.net',
+        target: 'https://15d9224bc8032cf7c07d7bdf88df2a37.serveo.net',
+        changeOrigin: true,
+        secure: false,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        }
+      },
+      '/clientmanager': {
+        target: 'https://15d9224bc8032cf7c07d7bdf88df2a37.serveo.net',
         changeOrigin: true,
         secure: false,
         headers: {
@@ -24,7 +35,7 @@ export default defineConfig({
         }
       },
       '/mcp': {
-        target: 'https://51f0c4a2f2255f4ffb8c5e489ade0041.serveo.net',
+        target: 'https://cb6c7bf1ca0fe38d0aef8251f89c3dd0.serveo.net',
         changeOrigin: true,
         secure: false,
         headers: {

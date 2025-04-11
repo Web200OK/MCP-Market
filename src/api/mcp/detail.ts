@@ -7,7 +7,7 @@ import type { MCPDetail } from '@/types/mcp'
  * @param id 服务器ID
  * @returns Promise<MCPDetail>
  */
-export const getMCPDetail = async (id: number): Promise<MCPDetail> => {
+export const getMCPDetail = async (id: string): Promise<MCPDetail> => {
   const res = await request({
     method: 'post',
     url: '/mcp/detail',
