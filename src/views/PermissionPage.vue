@@ -12,13 +12,13 @@
             v-for="client in clientList" 
             :key="client.id" 
             :index="client.id"
+            style="display: flex; justify-content: space-between; align-items: center"
           >
             {{ client.name }}
             <el-button 
               type="danger" 
               size="small" 
               @click.stop="handleDeleteClient(client.id)"
-              style="margin-left: 10px"
             >
               删除
             </el-button>
