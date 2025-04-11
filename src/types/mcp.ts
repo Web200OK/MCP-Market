@@ -28,3 +28,15 @@ export interface ClientItem {
   id: string
   name: string
 }
+
+export interface EnvDependency {
+  installDependencies: InstallDependencies | string
+}
+
+interface InstallDependencies {
+  required: string[]
+  hint: {
+    [key: string]: string | Record<string, string>
+  }
+  requiredValues?: Record<string, unknown>
+}

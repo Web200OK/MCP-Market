@@ -1,6 +1,57 @@
 <!-- MCP市场页面模板 -->
 <template>
   <div class="market-container">
+    <!-- 安装配置对话框 -->
+    <el-dialog
+      v-model="showInstallDialog"
+      title="安装配置"
+      width="50%"
+      :close-on-click-modal="false"
+    >
+      <el-form label-width="250px" class="install-form">
+        <!-- argExtList 可动态添加的输入框 -->
+        <el-form-item 
+          v-for="(item, index) in argExtList" 
+          :key="index"
+          :label="argExtLabel + (index + 1)"
+          class="form-item-with-button"
+        >
+          <div class="input-with-button">
+            <el-input v-model="argExtList[index]" />
+            <el-button 
+              type="danger" 
+              circle 
+              @click="removeArgExt(index)"
+              v-if="index > 0"
+            >
+              <el-icon><Delete /></el-icon>
+            </el-button>
+            <el-button 
+              type="primary" 
+              @click="addArgExt"
+              plain
+              v-if="index === argExtList.length - 1"
+            >
+              添加参数
+            </el-button>
+          </div>
+        </el-form-item>
+        
+        <!-- envExtList 字段输入框 -->
+        <el-form-item 
+          v-for="item in envExtOptionList" 
+          :key="item.prop"
+          :label="item.label"
+        >
+          <el-input v-model="envExtList[item.prop]" />
+        </el-form-item>
+      </el-form>
+      
+      <template #footer>
+        <el-button @click="resetForm">取消</el-button>
+        <el-button type="primary" @click="confirmInstall">确认安装</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 搜索区域 -->
     <div class="search-section">
@@ -121,8 +172,8 @@ const props = defineProps<{
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getMCPList, getCategoryList, installMCP } from '@/api/mcp'
-import type { MCPItem } from '@/types/mcp'
+import { getMCPList, getCategoryList, installMCP, getMCPDetail } from '@/api/mcp'
+import type { MCPItem, EnvDependency } from '@/types/mcp'
 
 interface ServiceItem extends Omit<MCPItem, 'id'> {
   id: string
@@ -203,24 +254,97 @@ async function filterByCategory(category: string) {
 }
 
 const installingId = ref<string>('') // 当前正在安装的服务ID
+const showInstallDialog = ref(false) // 控制安装对话框显示
+
+const argExtList = ref<string[]>([])
+const argExtLabel = ref('')
+const envExtList = ref<Record<string, string>>({})
+const envExtOptionList = ref<Array<{label: string, prop: string}>>([])
+
+const addArgExt = () => {
+  argExtList.value.push('')
+}
+
+const removeArgExt = (index: number) => {
+  argExtList.value.splice(index, 1)
+}
 
 async function handleInstall(service: ServiceItem) {
   try {
     installingId.value = service.id
-    const res = await installMCP(service.id)
-    if(res.status === 'installed') {
-      service.isDownload = true
-      ElMessage.success(`${service.name} 安装成功`)
+
+    // 获取服务详情
+    const detail: EnvDependency = await getMCPDetail(service.id)
+    // 解析envDependency字段
+    if (detail.envDependency) {
+      try {
+        detail.envDependency = JSON.parse(detail.envDependency)
+        if (typeof detail.envDependency.installDependencies === 'string') {
+          detail.envDependency.installDependencies = JSON.parse(detail.envDependency.installDependencies)
+        }
+        //遍历installDependencies的requires数组
+        detail.envDependency.installDependencies?.required.forEach((item) => {
+          if(item === 'argExtList') {
+            argExtList.value.push('')
+            argExtLabel.value = detail.envDependency.installDependencies?.hint?.argExtList || '参数'
+          } else {
+            //遍历installDependencies的hint对象
+            for (const [key, value] of Object.entries(detail.envDependency.installDependencies?.hint?.envExtList)) {
+              envExtList.value[key] = ''
+              envExtOptionList.value.push({
+                label: value,
+                prop: key
+              })
+            }
+          }
+        })
+        
+        // 显示安装配置对话框
+        showInstallDialog.value = true
+      } catch (err) {
+        console.error('解析envDependency失败:', err)
+      }
     }else {
-      ElMessage.error('安装失败，请稍后重试')
+      const res = await installMCP(service.id)
+      if(res.status === 'installed') {
+        service.isDownload = true
+        ElMessage.success(`${service.name} 安装成功`)
+      }else {
+        ElMessage.error('安装失败，请稍后重试')
+      }
     }
   } catch (err) {
     console.error('安装失败:', err)
     ElMessage.error('安装失败，请稍后重试')
-  } finally {
-    installingId.value = ''
-  }
+  } 
 }
+
+const resetForm = () => {
+  showInstallDialog.value = false;
+  argExtList.value = [];
+  envExtList.value = {};
+  envExtOptionList.value = [];
+  installingId.value = '';
+};
+
+const confirmInstall = async () => {
+  try {
+    const res = await installMCP(installingId.value, argExtList.value, envExtList.value);
+    
+    if(res.status === 'installed') {
+      const service = services.value.find(s => s.id === installingId.value);
+      if(service) service.isDownload = true;
+      ElMessage.success('安装成功');
+    } else {
+      ElMessage.error('安装失败，请稍后重试');
+    }
+  } catch (err) {
+    console.error('安装失败:', err);
+    ElMessage.error('安装失败，请稍后重试');
+  } finally {
+    resetForm();
+  }
+};
 
 const isSearching = ref(false)
 const abortController = ref<AbortController>()
@@ -321,6 +445,33 @@ async function handleSearch() {
     padding: 24px 24px 0 24px; /* 调整顶部padding */
     overflow: visible;
     margin-left: 20px;
+  }
+}
+
+/* 安装表单样式 */
+.install-form {
+  .form-item-with-button {
+    .el-form-item__content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      
+      .input-with-button {
+        display: flex;
+        flex: 1;
+        gap: 8px;
+        
+        .el-input {
+          flex: 1;
+        }
+      }
+    }
+    
+    .el-form-item__label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 
