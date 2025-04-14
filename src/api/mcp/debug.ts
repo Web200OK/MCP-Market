@@ -7,13 +7,13 @@ export interface DebugParams {
 }
 
 export interface DebugResult {
+  id: string
+  log: Array<{text: string}>
+  success: boolean
   tool: string
-  params: Record<string, string>
-  result: string
-  timestamp: string
 }
 
-export const debugTool = async (data: DebugParams): Promise<DebugResult> => {
+export const debugTool = async (data: DebugParams) => {
   const response = await request({
     method: 'post',
     url: '/mcpserver/debug',
@@ -23,10 +23,5 @@ export const debugTool = async (data: DebugParams): Promise<DebugResult> => {
     })
   })
 
-  return {
-    tool: data.tool,
-    params: data.params,
-    result: JSON.stringify(response),
-    timestamp: new Date().toISOString()
-  }
+  return (response as unknown) as DebugResult
 }
