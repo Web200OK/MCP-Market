@@ -173,7 +173,7 @@ const props = defineProps<{
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getMCPList, getCategoryList, installMCP, getMCPDetail, getInstalledMCPList } from '@/api/mcp'
+import { getMCPList, getCategoryList, installMCP, getMCPDetail, getSimpleInstalledMCPList } from '@/api/mcp'
 import type { MCPItem, EnvDependency } from '@/types/mcp'
 
 interface ServiceItem extends Omit<MCPItem, 'id'> {
@@ -203,7 +203,7 @@ const fetchServices = async (categoryId = '', searchName = '', signal?: AbortSig
   try {
     loading.value = true
     const data = await getMCPList({ categoryId, searchName })
-    const installedList = await getInstalledMCPList()
+    const installedList = await getSimpleInstalledMCPList()
     services.value = data.map(item => ({
       ...item,
       id: item.id.toString(),
