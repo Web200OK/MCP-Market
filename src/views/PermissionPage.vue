@@ -28,7 +28,7 @@
 
       <!-- 右侧服务器权限设置 -->
       <div class="server-permission">
-        <h3>已安装服务器</h3>
+        <h3>服务器权限</h3>
         <div class="server-list">
           <div 
             v-for="server in serverList" 

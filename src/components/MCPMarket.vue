@@ -82,11 +82,11 @@
         <ul class="category-list">
           <li 
             v-for="category in categories"
-            :key="category"
-            :class="{ active: activeCategory === category }"
+            :key="category.id"
+            :class="{ active: activeCategory === category.categoryName }"
             @click="filterByCategory(category)"
           >
-            {{ category }}
+            {{ category.categoryName }}
           </li>
         </ul>
       </aside>
@@ -186,7 +186,7 @@ const router = useRouter()
 const searchQuery = ref('') // 搜索关键词
 
 // 分类数据
-const categories = ref<string[]>([]) // 分类列表
+const categories = ref([]) // 分类列表
 const activeCategory = ref('') // 当前选中的分类
 
 // 服务数据
@@ -198,10 +198,10 @@ const goToDetail = (id: string) => {
   router.push({ name: 'mcp-details', params: { id } })
 }
 
-const fetchServices = async (category = '', search = '', signal?: AbortSignal) => {
+const fetchServices = async (categoryId = '', searchName = '', signal?: AbortSignal) => {
   try {
     loading.value = true
-    const data = await getMCPList({ category, search })
+    const data = await getMCPList({ categoryId, searchName })
     
     services.value = data.map(item => ({
       ...item,
@@ -230,7 +230,7 @@ onMounted(async () => {
   fetchServices()
   // 获取分类列表
   const categoryList = await getCategoryList()
-  categories.value = categoryList.map(item => item.categoryName)
+  categories.value = categoryList || []
   
   document.addEventListener('mcp-search', handleExternalSearch as EventListener)
 })
@@ -240,11 +240,11 @@ onUnmounted(() => {
   document.removeEventListener('mcp-search', handleExternalSearch as EventListener)
 })
 
-async function filterByCategory(category: string) {
+async function filterByCategory(category: Object) {
   try {
     loading.value = true
-    activeCategory.value = activeCategory.value === category ? '' : category
-    await fetchServices(activeCategory.value, searchQuery.value)
+    activeCategory.value = activeCategory.value === category.categoryName ? '' : category.categoryName
+    await fetchServices(category.id, searchQuery.value)
   } catch (err) {
     console.error('分类过滤失败:', err)
     ElMessage.error('分类过滤失败，请稍后重试')
