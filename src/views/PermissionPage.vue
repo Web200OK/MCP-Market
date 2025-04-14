@@ -14,7 +14,7 @@
             :index="client.id"
             style="display: flex; justify-content: space-between; align-items: center"
           >
-            {{ client.name }}
+            {{ client.name || '全局' }}
             <el-button 
               type="danger" 
               size="small" 
