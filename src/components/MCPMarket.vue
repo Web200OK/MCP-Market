@@ -144,6 +144,7 @@
                 size="small" 
                 :type="service.isDownload ? 'success' : 'primary'"
                 :loading="installingId === service.id"
+                :disabled="service.isDownload"
                 @click.stop="handleInstall(service)"
               >
                 {{ service.isDownload ? '已安装' : installingId === service.id ? '安装中...' : '点击安装' }}
@@ -172,7 +173,7 @@ const props = defineProps<{
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getMCPList, getCategoryList, installMCP, getMCPDetail } from '@/api/mcp'
+import { getMCPList, getCategoryList, installMCP, getMCPDetail, getInstalledMCPList } from '@/api/mcp'
 import type { MCPItem, EnvDependency } from '@/types/mcp'
 
 interface ServiceItem extends Omit<MCPItem, 'id'> {
@@ -202,11 +203,11 @@ const fetchServices = async (categoryId = '', searchName = '', signal?: AbortSig
   try {
     loading.value = true
     const data = await getMCPList({ categoryId, searchName })
-    
+    const installedList = await getInstalledMCPList()
     services.value = data.map(item => ({
       ...item,
       id: item.id.toString(),
-      isDownload: false,
+      isDownload: installedList?.servers.some(installed => installed.mcpServerId === item.id),
       description: item.description || '暂无描述',
       downloads: item.downloads || 0,
       rating: item.rating || 5.0
@@ -244,7 +245,7 @@ async function filterByCategory(category: Object) {
   try {
     loading.value = true
     activeCategory.value = activeCategory.value === category.categoryName ? '' : category.categoryName
-    await fetchServices(category.id, searchQuery.value)
+    await fetchServices(activeCategory.value ? category.id : '', searchQuery.value)
   } catch (err) {
     console.error('分类过滤失败:', err)
     ElMessage.error('分类过滤失败，请稍后重试')
