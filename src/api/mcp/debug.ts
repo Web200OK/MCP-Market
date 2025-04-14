@@ -13,7 +13,7 @@ export interface DebugResult {
   tool: string
 }
 
-export const debugTool = async (data: DebugParams) => {
+export const debugTool = async (data: DebugParams): Promise<DebugResult> => {
   const response = await request({
     method: 'post',
     url: '/mcpserver/debug',
