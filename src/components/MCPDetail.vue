@@ -40,7 +40,7 @@
             </el-col>
           </el-row>
           <el-row :gutter="20" style="margin-top: 20px;">
-            <el-col :span="12">
+            <el-col :span="12" v-if="server.envDependency && Object.keys(server.envDependency).length > 0">
               <el-card shadow="hover">
                 <h3 class="info-title">环境依赖</h3>
                 <el-descriptions :column="1" border>
@@ -61,7 +61,7 @@
                 </el-descriptions>
               </el-card>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="12" v-if="server.envParam && Object.keys(server.envParam).length > 0">
               <el-card shadow="hover">
                 <h3 class="info-title">环境参数</h3>
                 <el-descriptions :column="1" border>
@@ -120,7 +120,13 @@ export default {
       this.error = null
       try {
         const { id } = this.$route.params
-        this.server = await getMCPDetail(id)
+        const response = await getMCPDetail(id)
+        if (response.envDependency && typeof response.envDependency === 'string' && response.envDependency.includes('runtimeDependency')) {
+          response.envDependency = JSON.parse(JSON.parse(response.envDependency).runtimeDependency)
+        }else {
+          response.envDependency = {}
+        }
+        this.server = response
       } catch (err) {
         this.error = err.message || 'Network error'
         this.$message.error(this.error)
