@@ -314,12 +314,10 @@ async function handleInstall(service: ServiceItem) {
         ElMessage.success(`${service.name} 安装成功`)
       }else {
         installingId.value = ''
-        ElMessage.error('安装失败，请稍后重试')
       }
     }
   } catch (err) {
     console.error('安装失败:', err)
-    ElMessage.error('安装失败，请稍后重试')
   } 
 }
 
@@ -345,7 +343,6 @@ const confirmInstall = async () => {
     }
   } catch (err) {
     console.error('安装失败:', err);
-    ElMessage.error('安装失败，请稍后重试');
   } finally {
     isInstalling.value = false;
     resetForm();

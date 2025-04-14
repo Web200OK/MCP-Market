@@ -25,8 +25,8 @@ const handleSearch = (query: string) => {
 
 const initSSE = () => {
   eventSource.value = new EventSource('/mcpserver/webEvent')
-  
-  eventSource.value.onmessage = (event: any) => {
+
+  eventSource.value.addEventListener("event", (event) => {
     const data = JSON.parse(event.data)
     sseData.value = data
     
@@ -52,11 +52,13 @@ const initSSE = () => {
       default:
         ElMessage.success('收到后端推送数据')
     }
-  }
+  })
   
-  eventSource.value.onerror = () => {
-    ElMessage.error('SSE连接错误')
+  eventSource.value.onerror = (error) => {
     eventSource.value?.close()
+    setTimeout(() => {
+      initSSE() // 重新建立连接
+    }, 5000); // 延迟5秒后重连
   }
 }
 
