@@ -8,7 +8,7 @@ import { getCategoryList } from './mcp/categoryList'
 import { getClientList, deleteClient } from './mcp/client'
 import { getInstalledMCPByClient } from './mcp/installedByClient'
 import { updateServerPermission } from './mcp/updatePermission'
-import { listLocalEnv, nodeInstall, pythonInstall } from './mcp/env'
+import { listLocalEnv, nodeInstall, pythonInstall, saveLocalEnvConfig, checkNodeInstalled, checkPythonInstalled } from './mcp/env'
 import axios from 'axios'
 
 const instance = axios.create({
@@ -65,5 +65,8 @@ export {
   getSimpleInstalledMCPList,
   nodeInstall,
   pythonInstall,
-  uninstallMCP
+  uninstallMCP,
+  saveLocalEnvConfig,
+  checkNodeInstalled, 
+  checkPythonInstalled
 }

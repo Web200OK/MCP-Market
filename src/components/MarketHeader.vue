@@ -39,7 +39,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item @click="showConfigDialog = true">程序配置</el-dropdown-item>
+              <el-dropdown-item @click="handleShowConfig">程序配置</el-dropdown-item>
               <el-dropdown-item @click="handleLogout">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -77,23 +77,41 @@
       <el-alert
         title="配置说明"
         type="info"
-        description="请配置以下程序路径，这些路径将用于MCP Server安装时匹配对应的程序。您可以选择手动输入路径，或点击下载按钮自动下载并安装最新版本的程序。"
+        description="请配置以下程序路径，这些路径将用于MCP Server安装时匹配对应的程序。"
         show-icon
         style="margin-bottom: 20px"
       />
       <el-form 
-        :model="programConfig"
+        :model="envInfo"
         label-width="120px"
         label-position="right"
       >
-        <el-form-item label="Node.js路径">
-          <el-input v-model="programConfig.nodePath" placeholder="C:\\Program Files\\nodejs\\node.exe" style="width: 300px" />
-          <el-button type="primary" style="margin-left: 10px" @click="downloadProgram('node')">下载</el-button>
+        <el-form-item 
+          v-for="(item, key) in envInfo" 
+          :key="key"
+          :label="key + '路径'"
+        >
+          <el-input v-model="item.command" placeholder='C:\\Program Files\\xxx\\xxx.exe' style="width: 300px" />
         </el-form-item>
-        <el-form-item label="Python路径">
-          <el-input v-model="programConfig.pythonPath" placeholder="C:\\Users\\用户名\\AppData\\Local\\Programs\\Python\\Python版本号\\python.exe" style="width: 300px" />
-          <el-button type="primary" style="margin-left: 10px" @click="downloadProgram('python')">下载</el-button>
-        </el-form-item>
+        <div style="margin-bottom: 20px; text-align: center">
+          <el-button 
+            v-if="!nodeInstalled"
+            type="primary" 
+            @click="downloadProgram('node')" 
+            style="margin-right: 20px"
+            :disabled="nodeInstalled"
+          >
+            下载Node.js
+          </el-button>
+          <el-button 
+            v-if="!pythonInstalled"
+            type="primary" 
+            @click="downloadProgram('python')"
+            :disabled="pythonInstalled"
+          >
+            下载Python
+          </el-button>
+        </div>
       </el-form>
       <template #footer>
         <el-button @click="showConfigDialog = false">取消</el-button>
@@ -130,6 +148,7 @@ import { Search } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage, ElLoading } from 'element-plus'
+import { nodeInstall, pythonInstall, listLocalEnv, saveLocalEnvConfig, checkNodeInstalled, checkPythonInstalled } from '@/api/mcp'
 // 定义组件事件
 const emit = defineEmits(['search']) // 搜索事件
 
@@ -159,9 +178,28 @@ const handleLogout = () => {
   store.dispatch('logout')
 }
 
-const handleSaveConfig = () => {
-  // TODO: 保存配置到Vuex store
-  showConfigDialog.value = false
+const handleSaveConfig = async () => {
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在保存配置...',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+  
+  try {
+    const data = await saveLocalEnvConfig(envInfo.value)
+    
+    if (data.success) {
+      ElMessage.success('保存成功')
+    } else {
+      throw new Error(data.message || '保存失败')
+    }
+    
+    showConfigDialog.value = false
+  } catch (err) {
+    ElMessage.error(`保存失败: ${err.message}`)
+  } finally {
+    loading.close()
+  }
 }
 
 const downloadProgram = async (type) => {
@@ -172,31 +210,55 @@ const downloadProgram = async (type) => {
       background: 'rgba(0, 0, 0, 0.7)'
     })
     
-    // TODO: 实现下载逻辑
-    // 模拟下载过程
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // 根据类型设置默认路径
+    let success = false
     switch(type) {
       case 'node':
-        programConfig.value.nodePath = 'C:\\Program Files\\nodejs\\node.exe'
+        success = await nodeInstall()
         break
       case 'python':
-        programConfig.value.pythonPath = 'C:\\Users\\${username}\\AppData\\Local\\Programs\\Python\\Python-latest\\python.exe'
+        success = await pythonInstall()
         break
+    }
+    
+    if (!success) {
+      throw new Error(`${type}安装失败`)
     }
     
     loading.close()
     ElMessage.success(`${type}程序下载并安装成功！`)
   } catch (err) {
+    loading.close()
     ElMessage.error(`下载失败: ${err.message}`)
   }
 }
 
-const programConfig = ref({
-  nodePath: '',
-  pythonPath: ''
-})
+const envInfo = ref({})
+
+const nodeInstalled = ref(false)
+const pythonInstalled = ref(false)
+
+const handleShowConfig = async () => {
+  showConfigDialog.value = true
+  const loading = ElLoading.service({
+    lock: true,
+    text: '正在获取环境信息...',
+    background: 'rgba(0, 0, 0, 0.7)'
+  })
+  try {
+    const [envData, nodeStatus, pythonStatus] = await Promise.all([
+      listLocalEnv(),
+      checkNodeInstalled(),
+      checkPythonInstalled()
+    ])
+    envInfo.value = envData.envInfo
+    nodeInstalled.value = nodeStatus
+    pythonInstalled.value = pythonStatus
+    loading.close()
+  } catch (err) {
+    console.error('获取环境信息失败:', err)
+    loading.close()
+  }
+}
 
 // 导航数据
 const mainNavItems = ref([
