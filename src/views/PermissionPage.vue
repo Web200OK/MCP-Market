@@ -4,26 +4,25 @@
       <!-- 左侧客户端列表 -->
       <div class="client-list">
         <h3>Client权限设置</h3>
-        <el-menu 
-          :default-active="activeClient" 
-          @select="handleClientSelect"
-        >
-          <el-menu-item 
+        <div class="client-cards">
+          <div 
             v-for="client in clientList" 
             :key="client.id" 
-            :index="client.id"
-            style="display: flex; justify-content: space-between; align-items: center"
+            :class="['client-card', { active: activeClient === client.id }]"
+            @click="handleClientSelect(client.id)"
           >
-            {{ client.name || '全局' }}
-            <el-button 
-              type="danger" 
-              size="small" 
-              @click.stop="handleDeleteClient(client.id)"
-            >
-              删除
-            </el-button>
-          </el-menu-item>
-        </el-menu>
+            <div class="client-content">
+              <span class="client-name">{{ client.name || '全局' }}</span>
+              <el-icon 
+                v-if="client.id !== -1"
+                class="delete-icon"
+                @click.stop="handleDeleteClient(client.id)"
+              >
+                <Close />
+              </el-icon>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 右侧服务器权限设置 -->
@@ -52,7 +51,7 @@
 <script setup>
 import { ref, onMounted  } from 'vue'
 import { getClientList, getInstalledMCPByClient, updateServerPermission, deleteClient } from '@/api/mcp'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 客户端列表数据
 const clientList = ref([])
@@ -143,8 +142,13 @@ const handlePermissionChange = async (server) => {
 
 // 处理删除客户端
 const handleDeleteClient = async (clientId) => {
-  loading.value = true
+    await ElMessageBox.confirm('确定要删除此客户端吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
   try {
+    loading.value = true
     const res = await deleteClient(clientId)
     if (res === 1) {
       ElMessage.success(res.message || '客户端删除成功')
@@ -180,22 +184,64 @@ const handleDeleteClient = async (clientId) => {
 
 .permission-layout {
   display: flex;
+  gap: 20px;
   height: calc(100vh - 120px);
 }
 
 .client-list {
-  width: 280px;
-  border-right: 1px solid #eee;
-  padding-right: 20px;
-  min-height: 100%;
+  width: 300px;
+}
+
+.client-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.client-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.client-card:hover {
+  background: rgba(0, 122, 255, 0.05);
+  border-color: rgba(0, 122, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.1);
+}
+
+.delete-icon {
+  display: none;
+  color: #f56c6c;
+  cursor: pointer;
+}
+
+.client-card:hover .delete-icon {
+  display: block;
+}
+
+.client-card.active {
+  background: rgba(0, 122, 255, 0.1);
+  border-color: rgba(0, 122, 255, 0.3);
+}
+
+.client-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.client-name {
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .server-permission {
   flex: 1;
-  padding-left: 30px;
-  padding-right: 30px;
-  padding: 20px;
-  border-radius: 16px 0 0 16px;
 }
 
 .server-list {
@@ -209,15 +255,15 @@ const handleDeleteClient = async (clientId) => {
   padding: 16px;
   margin-bottom: 12px;
   border-radius: 12px;
-  background: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .server-item:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .server-info {
