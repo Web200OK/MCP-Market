@@ -149,6 +149,16 @@
               >
                 {{ service.isDownload ? '已安装' : installingId === service.id ? '安装中...' : '点击安装' }}
               </el-button>
+              <el-button 
+                v-if="service.isDownload"
+                size="small" 
+                type="danger"
+                @click.stop="handleUninstall(service.id)"
+                style="margin-left: 0px"
+                :loading="uninstallingId === service.id"
+              >
+                {{ uninstallingId === service.id ? '卸载中...' : '卸载' }}
+              </el-button>
             </div>
           </div>
         </div>
@@ -173,7 +183,7 @@ const props = defineProps<{
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import { getMCPList, getCategoryList, installMCP, getMCPDetail, getSimpleInstalledMCPList } from '@/api/mcp'
+import { getMCPList, getCategoryList, installMCP, getMCPDetail, getSimpleInstalledMCPList, uninstallMCP } from '@/api/mcp'
 import type { MCPItem, EnvDependency } from '@/types/mcp'
 
 interface ServiceItem extends Omit<MCPItem, 'id'> {
@@ -255,6 +265,7 @@ async function filterByCategory(category: Object) {
 }
 
 const installingId = ref<string>('') // 当前正在安装的服务ID
+const uninstallingId = ref<string>('') // 当前正在卸载的服务ID
 const showInstallDialog = ref(false) // 控制安装对话框显示
 const isInstalling = ref(false) // 安装状态
 
@@ -319,6 +330,27 @@ async function handleInstall(service: ServiceItem) {
   } catch (err) {
     console.error('安装失败:', err)
   } 
+}
+
+const handleUninstall = async (serviceId: string) => {
+  try {
+    uninstallingId.value = serviceId
+    const res = await uninstallMCP(serviceId)
+    if (res?.status === 'uninstalled') {
+      const service = services.value.find(s => s.id === serviceId)
+      if (service) {
+        service.isDownload = false
+      }
+      ElMessage.success('卸载成功')
+    } else {
+      ElMessage.error('卸载失败，请稍后重试')
+    }
+  } catch (err) {
+    console.error('卸载失败:', err)
+    ElMessage.error('卸载失败，请稍后重试')
+  } finally {
+    uninstallingId.value = ''
+  }
 }
 
 const resetForm = () => {

@@ -14,7 +14,7 @@ const mockInstance: AxiosInstance = axios.create({
 // 创建远程实例
 const remoteInstance: AxiosInstance = axios.create({
   baseURL: '/',
-  timeout: 10000,
+  timeout: 100000,
   withCredentials: true
 })
 

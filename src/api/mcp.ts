@@ -1,13 +1,14 @@
 import { getMCPList } from './mcp/list'
 import { getMCPDetail } from './mcp/detail'
-import { getInstalledMCPList } from './mcp/installed'
+import { getInstalledMCPList, getSimpleInstalledMCPList } from './mcp/installed'
 import { debugTool } from './mcp/debug'
 import { getMCPStatus } from './mcp/status'
-import { installMCP } from './mcp/install'
+import { installMCP, uninstallMCP } from './mcp/install'
 import { getCategoryList } from './mcp/categoryList'
 import { getClientList, deleteClient } from './mcp/client'
 import { getInstalledMCPByClient } from './mcp/installedByClient'
 import { updateServerPermission } from './mcp/updatePermission'
+import { listLocalEnv, nodeInstall, pythonInstall } from './mcp/env'
 import axios from 'axios'
 
 const instance = axios.create({
@@ -59,5 +60,10 @@ export {
   getClientList,
   getInstalledMCPByClient,
   updateServerPermission,
-  deleteClient
+  deleteClient,
+  listLocalEnv,
+  getSimpleInstalledMCPList,
+  nodeInstall,
+  pythonInstall,
+  uninstallMCP
 }
