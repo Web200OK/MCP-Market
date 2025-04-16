@@ -143,7 +143,7 @@
               <div>
                 <el-button 
                   size="small" 
-                  :type="service.isDownload ? 'success' : 'primary'"
+                  :type="service.isDownload ? (!service.isRunSuccess ? 'info' : 'success') : 'primary'"
                   :loading="installingId === service.id"
                   :disabled="service.isDownload"
                   @click.stop="handleInstall(service)"
