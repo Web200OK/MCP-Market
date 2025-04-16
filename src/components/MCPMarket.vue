@@ -184,7 +184,7 @@ const props = defineProps<{
 }>()
 import { useRouter } from 'vue-router'
 import { Search } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { getMCPList, getCategoryList, installMCP, getMCPDetail, getSimpleInstalledMCPList, uninstallMCP } from '@/api/mcp'
 import type { MCPItem, EnvDependency } from '@/types/mcp'
 
@@ -229,7 +229,6 @@ const fetchServices = async (categoryId = '', searchName = '', signal?: AbortSig
       downloads: item.downloads || 0,
       rating: item.rating || 5.0
     }))
-    debugger
   } catch (err) {
     error.value = err as Error
     console.error('Failed to fetch MCP list:', err)
@@ -291,7 +290,12 @@ const removeArgExt = (index: number) => {
 }
 
 async function handleInstall(service: ServiceItem) {
-  try {
+  await ElMessageBox.confirm(`确定要安装 ${service.name} 吗？`, '安装确认', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+  try {    
     installingId.value = service.id
 
     // 获取服务详情
@@ -341,7 +345,13 @@ async function handleInstall(service: ServiceItem) {
 }
 
 const handleUninstall = async (serviceId: string) => {
-  try {
+  const service = services.value.find(s => s.id === serviceId)
+  await ElMessageBox.confirm(`确定要卸载 ${service?.name} 吗？`, '卸载确认', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  })
+  try {    
     uninstallingId.value = serviceId
     const res = await uninstallMCP(serviceId)
     if (res?.status === 'uninstalled') {
