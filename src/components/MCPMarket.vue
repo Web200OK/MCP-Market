@@ -140,25 +140,27 @@
               <span>{{ service.downloads }}次下载</span>
               <span>评分: {{ service.rating.toFixed(1) }}</span>
               </div>
-              <el-button 
-                size="small" 
-                :type="service.isDownload ? 'success' : 'primary'"
-                :loading="installingId === service.id"
-                :disabled="service.isDownload"
-                @click.stop="handleInstall(service)"
-              >
-                {{ service.isDownload ? '已安装' : installingId === service.id ? '安装中...' : '点击安装' }}
-              </el-button>
-              <el-button 
-                v-if="service.isDownload"
-                size="small" 
-                type="danger"
-                @click.stop="handleUninstall(service.id)"
-                style="margin-left: 0px"
-                :loading="uninstallingId === service.id"
-              >
-                {{ uninstallingId === service.id ? '卸载中...' : '卸载' }}
-              </el-button>
+              <div>
+                <el-button 
+                  size="small" 
+                  :type="service.isDownload ? 'success' : 'primary'"
+                  :loading="installingId === service.id"
+                  :disabled="service.isDownload"
+                  @click.stop="handleInstall(service)"
+                >
+                  {{ service.isDownload ? (!service.isRunSuccess ? '运行失败' : '已安装') : installingId === service.id ? '安装中...' : '点击安装' }}
+                </el-button>
+                <el-button 
+                  v-if="service.isDownload"
+                  size="small" 
+                  type="danger"
+                  @click.stop="handleUninstall(service.id)"
+                  style="margin-left: 8px"
+                  :loading="uninstallingId === service.id"
+                >
+                  {{ uninstallingId === service.id ? '卸载中...' : '卸载' }}
+                </el-button>
+              </div>
             </div>
           </div>
         </div>
@@ -217,11 +219,17 @@ const fetchServices = async (categoryId = '', searchName = '', signal?: AbortSig
     services.value = data.map(item => ({
       ...item,
       id: item.id.toString(),
-      isDownload: installedList?.servers.some(installed => installed.mcpServerId === item.id),
+      isDownload: installedList?.servers.some(installed => {
+          return installed.mcpServerId === item.id
+      }),
+      isRunSuccess: installedList?.servers.some(installed => {
+          return installed.mcpServerId === item.id && installed.runSuccess
+      }),
       description: item.description || '暂无描述',
       downloads: item.downloads || 0,
       rating: item.rating || 5.0
     }))
+    debugger
   } catch (err) {
     error.value = err as Error
     console.error('Failed to fetch MCP list:', err)
