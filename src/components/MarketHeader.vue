@@ -15,8 +15,15 @@
       </nav>
 
       <div class="header-right">
-        <el-button v-if="!isAuthenticated" type="primary" size="small" @click="showLoginDialog = true"
-          style="background-color: #d33b30; border-color: #d33b30">
+        <div ref="darkSwitchRef" class="app-dark-switch">
+          <el-switch
+            :active-action-icon="MoonOutlined"
+            :inactive-action-icon="SunOutlined"
+            :model-value="darkMode"
+            @update:modelValue="updateDarkMode"
+          />
+        </div>
+        <el-button v-if="!isAuthenticated" type="primary" size="small" @click="showLoginDialog = true">
           登录
         </el-button>
         <el-dropdown v-else>
@@ -122,6 +129,10 @@ import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 import { ElMessage, ElLoading } from 'element-plus'
 import { nodeInstall, pythonInstall, listLocalEnv, saveLocalEnvConfig, checkNodeInstalled, checkPythonInstalled } from '@/api/mcp'
+
+import MoonOutlined from './MoonOutlined.vue';
+import SunOutlined from './SunOutlined.vue';
+
 // 定义组件事件
 const emit = defineEmits(['search']) // 搜索事件
 
@@ -274,12 +285,143 @@ const handleSearch = () => {
   // 搜索逻辑由各页面自行实现
   emit('search', searchQuery.value)
 }
+
+const darkMode = ref(false);
+
+const darkSwitchRef = ref();
+
+const changeDarkTheme = (isDark) => {
+  const $html = document.documentElement;
+  if ($html) {
+    if (isDark) {
+      $html.classList.add('dark');
+    } else {
+      $html.classList.remove('dark');
+    }
+  }
+  darkMode.value = isDark;
+  const themeItem =  { color: '#2f54eb' }
+  changeThemeColor(themeItem);
+  cacheTheme(isDark);
+};
+
+const themeColor = ref('#2f54eb');
+const themeCacheKey = 'themeConfig';
+
+const changeThemeColor = (item) => {
+  themeColor.value = item.color;
+  const id = 'ele-theme-var';
+  const elem = document.getElementById(id);
+  if (elem?.parentNode) {
+    elem.parentNode.removeChild(elem);
+  }
+  const colors = darkMode.value ? item.darkColors : item.colors;
+  if (colors) {
+    const selector = darkMode.value ? 'html.dark' : ':root';
+    const elem = document.createElement('style');
+    elem.id = id;
+    elem.setAttribute('type', 'text/css');
+    elem.innerHTML = [
+      `${selector}{`,
+      `--el-color-primary:${colors[5]};`,
+      `--el-color-primary-light-3:${colors[4]};`,
+      `--el-color-primary-light-5:${colors[3]};`,
+      `--el-color-primary-light-7:${colors[2]};`,
+      `--el-color-primary-light-8:${colors[1]};`,
+      `--el-color-primary-light-9:${colors[0]};`,
+      `--el-color-primary-dark-2:${colors[6]};`,
+      '}'
+    ].join('');
+    document.head.appendChild(elem);
+  }
+  cacheTheme(void 0, themeColor.value);
+};
+
+const updateDarkMode = (isDark) => {
+  const el = darkSwitchRef.value?.querySelector?.('.el-switch__action');
+  if (!el || typeof document.startViewTransition !== 'function') {
+    changeDarkTheme(isDark);
+    return;
+  }
+  const isOut = !isDark;
+  document.documentElement.classList.add('disabled-transition');
+  el.classList.add('view-transition-trigger');
+  el.style.setProperty('view-transition-name', 'view-transition-trigger');
+  const rect = el.getBoundingClientRect();
+  const x = rect.left + rect.width / 2;
+  const y = rect.top + rect.height / 2;
+  const endRadius = Math.hypot(
+    Math.max(x, innerWidth - x),
+    Math.max(y, innerHeight - y)
+  );
+  document
+    .startViewTransition(() => changeDarkTheme(isDark))
+    .ready.then(() => {
+      const clipPath = [
+        `circle(0px at ${x}px ${y}px)`,
+        `circle(${endRadius}px at ${x}px ${y}px)`
+      ];
+      const anim = document.documentElement.animate(
+        { clipPath: isOut ? [...clipPath].reverse() : clipPath },
+        {
+          duration: 400,
+          easing: 'ease-in',
+          pseudoElement: isOut
+            ? `::view-transition-old(root)`
+            : `::view-transition-new(root)`
+        }
+      );
+      anim.onfinish = () => {
+        el.style.removeProperty('view-transition-name');
+        el.classList.remove('view-transition-trigger');
+        document.documentElement.classList.remove('disabled-transition');
+      };
+    });
+}
+
+const cacheTheme = (isDark, color) => {
+  try {
+    const cacheTheme = JSON.parse(
+      localStorage.getItem(themeCacheKey) || '{}'
+    );
+    if (isDark != null) {
+      cacheTheme.dark = isDark;
+    }
+    if (color != null) {
+      cacheTheme.color = color;
+    }
+    localStorage.setItem(themeCacheKey, JSON.stringify(cacheTheme));
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+const getCacheThemeColor = (color) => {
+  const themeItem = { color: '#2f54eb' };
+  return themeItem?.color || themeColors.value[0]?.color;
+};
+
+try {
+  const cacheTheme = JSON.parse(localStorage.getItem(themeCacheKey) || '{}');
+  if (cacheTheme.dark) {
+    if (cacheTheme.color) {
+      themeColor.value = getCacheThemeColor(cacheTheme.color);
+    }
+    changeDarkTheme(true);
+  } else if (cacheTheme.color) {
+    themeColor.value = getCacheThemeColor(cacheTheme.color);
+    const themeItem = { color: '#2f54eb' }
+    changeThemeColor(themeItem);
+  }
+} catch (e) {
+  console.error(e);
+}
 </script>
 
 <style scoped lang="scss">
 .market-header {
-  background: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: var(--el-bg-color);
+  box-shadow: 0 1px 1px #eee;
 
   &.fixed-header {
     position: fixed;
@@ -315,14 +457,20 @@ const handleSearch = () => {
         transition: all 0.3s;
 
         &:hover {
-          color: #d33b30;
+          color: var(--el-color-primary);
         }
 
         &.active {
-          color: #d33b30;
-          border-bottom: 3px solid #d33b30;
+          color: var(--el-color-primary);
+          border-bottom: 3px solid var(--el-color-primary);
         }
       }
+    }
+
+    .header-right {
+      display: flex;
+      gap: 30px;
+      align-items: center;
     }
   }
 
@@ -334,7 +482,6 @@ const handleSearch = () => {
       font-size: 28px;
       font-weight: bold;
       margin-bottom: 20px;
-      color: #333;
 
       .highlight {
         color: #d33b30;

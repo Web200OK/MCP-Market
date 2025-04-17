@@ -201,7 +201,7 @@ const handleDeleteClient = async (clientId) => {
 .client-card {
   padding: 16px;
   border-radius: 12px;
-  background: #fff;
+  background: var(--el-bg-color);
   border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
@@ -210,13 +210,12 @@ const handleDeleteClient = async (clientId) => {
 
 .client-card:hover {
   background: rgba(0, 122, 255, 0.05);
-  border-color: rgba(0, 122, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.1);
+  border-color: var(--el-color-primary);
 }
 
 .delete-icon {
   display: none;
-  color: #f56c6c;
+  color: var(--el-color-primary);
   cursor: pointer;
 }
 
@@ -226,7 +225,7 @@ const handleDeleteClient = async (clientId) => {
 
 .client-card.active {
   background: rgba(0, 122, 255, 0.1);
-  border-color: rgba(0, 122, 255, 0.3);
+  border-color: var(--el-color-primary);
 }
 
 .client-content {
@@ -255,7 +254,7 @@ const handleDeleteClient = async (clientId) => {
   padding: 16px;
   margin-bottom: 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--el-bg-color);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;

@@ -67,7 +67,7 @@ export default {
 }
 
 pre {
-  background: #f5f5f5;
+  background: var(--el-bg-color);
   padding: 10px;
   border-radius: 4px;
 }

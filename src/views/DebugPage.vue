@@ -301,7 +301,7 @@ const executeTool = async () => {
 
 .el-card {
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background: var(--el-bg-color);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
@@ -333,7 +333,7 @@ const executeTool = async () => {
 
 .result-card {
   margin-top: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background: var(--el-bg-color);
 }
 
 .tool-debug-form {
@@ -342,7 +342,7 @@ const executeTool = async () => {
 
 .result-card {
   margin-top: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
+  background: var(--el-bg-color);
 }
 
 .result-header {
@@ -363,7 +363,7 @@ const executeTool = async () => {
   color: #333;
   padding: 15px;
   margin: 0;
-  background-color: #f8f8f8;
+  background: var(--el-bg-color);
   border-radius: 4px;
 }
 
@@ -380,13 +380,13 @@ pre code.hljs {
 }
 
 .el-button--primary {
-  background-color: #007aff;
-  border-color: #007aff;
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 
 .el-button--primary:hover {
-  background-color: #0062cc;
-  border-color: #0062cc;
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 
 /* 增强列表交互效果 */

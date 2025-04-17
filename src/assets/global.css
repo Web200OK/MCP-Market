@@ -1,4 +1,7 @@
-/* 全局交互效果 */
+:root {
+  --el-color-primary: #2f54eb;
+}
+全局交互效果
 .el-table__body tr:hover > td {
   background-color: #f5f7fa;
   cursor: pointer;

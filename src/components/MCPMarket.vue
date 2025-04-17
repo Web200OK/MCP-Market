@@ -53,27 +53,6 @@
       </template>
     </el-dialog>
 
-    <!-- 搜索区域 -->
-    <div class="search-section">
-      <h3 class="search-title">搜索MCP服务</h3>
-      <div class="search-container">
-        <el-input
-          v-model="searchQuery"
-          placeholder="请输入搜索关键词"
-          class="search-input"
-          clearable
-          @keyup.enter="handleSearch"
-        >
-          <template #append>
-            <el-button 
-              :icon="Search" 
-              @click="handleSearch"
-            />
-          </template>
-        </el-input>
-      </div>
-    </div>
-
     <!-- 主体内容 -->
     <div class="market-main with-header">
       <!-- 分类边栏 -->
@@ -442,7 +421,7 @@ async function handleSearch() {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #FFFFFF;
+  background: var(--el-bg-color);
   overflow: hidden;
 }
 
@@ -452,19 +431,18 @@ async function handleSearch() {
     overflow: auto;
 
     &.with-header {
-      margin-top: 120px; /* 减少顶部间距 */
+      margin-top: 200px; /* 减少顶部间距 */
     }
 
   .category-sidebar {
     width: 200px;
     padding: 20px;
-    background: #fff;
+    background: var(--el-bg-color);
     border-right: 1px solid #eee;
 
     .sidebar-title {
       margin: 0 0 15px;
       font-size: 16px;
-      color: #333;
     }
 
     .category-list {
@@ -480,13 +458,11 @@ async function handleSearch() {
         transition: all 0.2s;
 
         &:hover {
-          background: rgba(211, 59, 48, 0.1);
-          color: #d33b30;
+          color: var(--el-color-primary);
         }
 
         &.active {
-          background: rgba(211, 59, 48, 0.1);
-          color: #d33b30;
+          color: var(--el-color-primary);
           font-weight: 500;
         }
       }
@@ -551,7 +527,7 @@ async function handleSearch() {
   .skeleton-title {
     height: 24px;
     width: 70%;
-    background: #f0f0f0;
+    background: var(--el-bg-color);
     border-radius: 4px;
     margin-bottom: 16px;
     animation: pulse 1.5s ease-in-out infinite;
@@ -565,7 +541,7 @@ async function handleSearch() {
     .skeleton-tag {
       height: 24px;
       width: 60px;
-      background: #f0f0f0;
+      background: var(--el-bg-color);
       border-radius: 12px;
       animation: pulse 1.5s ease-in-out infinite;
     }
@@ -573,7 +549,7 @@ async function handleSearch() {
   
   .skeleton-desc {
     height: 60px;
-    background: #f0f0f0;
+    background: var(--el-bg-color);
     border-radius: 4px;
     margin-bottom: 20px;
     animation: pulse 1.5s ease-in-out infinite;
@@ -587,7 +563,7 @@ async function handleSearch() {
     .skeleton-stats {
       height: 16px;
       width: 120px;
-      background: #f0f0f0;
+      background: var(--el-bg-color);
       border-radius: 4px;
       animation: pulse 1.5s ease-in-out infinite;
     }
@@ -595,7 +571,7 @@ async function handleSearch() {
     .skeleton-button {
       height: 32px;
       width: 80px;
-      background: #f0f0f0;
+      background: var(--el-bg-color);
       border-radius: 8px;
       animation: pulse 1.5s ease-in-out infinite;
     }
@@ -646,27 +622,11 @@ async function handleSearch() {
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 
-      0 8px 25px rgba(0, 0, 0, 0.1),
-      0 2px 6px rgba(0, 0, 0, 0.05),
-      0 0 15px rgba(0, 122, 255, 0.5);
-    border-color: rgba(0, 122, 255, 0.5);
+    border-color: var(--el-color-primary);
   }
 
   &:active {
     transform: scale(0.98);
-  }
-
-  .card-badge {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 4px 12px;
-    background: linear-gradient(135deg, #007AFF, #34C759);
-    color: white;
-    font-size: 12px;
-    font-weight: 500;
-    border-radius: 0 16px 0 16px;
   }
 
   .card-title {

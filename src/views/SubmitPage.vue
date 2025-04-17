@@ -215,7 +215,7 @@ const resetForm = () => {
 <style scoped>
 .submit-page {
   padding: 20px;
-  background-color: #f2f2f7;
+  background: var(--el-bg-color);
 }
 
 .submit-content {
@@ -228,7 +228,7 @@ const resetForm = () => {
   flex: 1;
   max-width: 600px;
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background: var(--el-bg-color);
   backdrop-filter: blur(10px);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
@@ -241,7 +241,7 @@ const resetForm = () => {
 .submit-guide {
   flex: 1;
   padding: 20px;
-  background: rgba(245, 245, 245, 0.8);
+  background: var(--el-bg-color);
   border-radius: 12px;
   backdrop-filter: blur(10px);
 }
@@ -259,12 +259,12 @@ const resetForm = () => {
 }
 
 .el-button--primary {
-  background-color: #007aff;
-  border-color: #007aff;
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 
 .el-button--primary:hover {
-  background-color: #0062cc;
-  border-color: #0062cc;
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
 }
 </style>
